@@ -1,5 +1,6 @@
 #include "board.h"
 #include "piece.cpp"
+#include "move.cpp"
 #include <map>
 #include <vector>
 #include <algorithm>
@@ -23,43 +24,35 @@ vector<string> split(string str, string token){
 }
 
 
-void precomputedMoveData() {
-    const int directionOffSets[8] = {8, -8, -1, 1, 7, -7, 9, -9};
-    int* numSqauresToEdge[64];
-
-    for(int file = 0; file < 8; file++) {
-        for(int rank = 0; rank < 8; rank++) {
-            int numNorth = 7-rank;
-            int numSouth = rank;
-            int numWest = file;
-            int numEast = 7-file;
-            int sqIndex = rank * 8 + file;
-            int directionArray[8] = {
-                numNorth, 
-                numSouth, 
-                numWest, 
-                numEast,
-                min(numNorth, numWest),
-                min(numSouth, numEast),
-                min(numNorth, numEast),
-                min(numSouth, numWest)
-            };
-            numSqauresToEdge[sqIndex] = directionArray;
+vector<Move> Board::generateMoves() {
+    for(int startSq = 0; startSq < 64; startSq++) {
+        const char piece = squares[startSq];
+        if(isColor(piece, moveColor)) {
+            if(isSlidingPiece(piece)) {
+                generateSlidingMoves(startSq, piece);
+            }
         }
     }
 }
 
-struct Move {
-    std::string startSq;
-    std::string endSq;
-};
+void Board::generateSlidingMoves(int startSq, const char piece) {
+    int startDirIndex = isBishop(piece) ? 4 : 0;
+    int endDirIndex = isRook(piece) ? 4 : 8; 
 
-vector<Move> moves;
+    for(int directionIndex = startDirIndex; directionIndex < endDirIndex; directionIndex++) {
+        for(int n = 0; n < numSqauresToEdge[startSq][directionIndex]; n++) {
+            int targetSq = startSq + directionOffSets[directionIndex] * (n+1);
+            const char pieceOnTargetSq = squares[targetSq];
 
-vector<Move> Board::generateMoves() {
-    for(int startSq = 0; startSq < 64; startSq++) {
-        const int piece = squares[startSq];
-        if(Piece.isColor(piece, moveColor))
+            if(isColor(piece, pieceOnTargetSq)) {
+                break;
+            }
+            moves.push_back(Move(startSq, targetSq));
+            if(!isColor(pieceOnTargetSq, moveColor)) {
+                break;
+            }
+            
+        }
     }
 }
 
@@ -73,21 +66,20 @@ Board::Board(string s="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 }
 
 void Board::loadFen(string f="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1") {
-    Piece p;
     map<char, const int> piece_map = {
-        {'k', p.BlackKing()},
-        {'q', p.BlackQueen()},
-        {'r', p.BlackRook()},
-        {'b', p.BlackBishop()},
-        {'n', p.BlackKnight()},
-        {'p', p.BlackPawn()},
+        {'k', BlackKing()},
+        {'q', BlackQueen()},
+        {'r', BlackRook()},
+        {'b', BlackBishop()},
+        {'n', BlackKnight()},
+        {'p', BlackPawn()},
 
-        {'K', p.WhiteKing()},
-        {'Q', p.WhiteQueen()},
-        {'R', p.WhiteRook()},
-        {'B', p.WhiteBishop()},
-        {'N', p.WhiteKnight()},
-        {'P', p.WhitePawn()}
+        {'K', WhiteKing()},
+        {'Q', WhiteQueen()},
+        {'R', WhiteRook()},
+        {'B', WhiteBishop()},
+        {'N', WhiteKnight()},
+        {'P', WhitePawn()}
     };
 
     vector<string> fen_info = split(f, " ");
