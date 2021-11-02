@@ -1,11 +1,12 @@
-#ifndef MOVE_H_
-#define MOVE_H_
-#include <string>
+#ifndef MOVE_H
+#define MOVE_H
 
-struct Move {
-    int startSq;
-    int endSq;
-    Move(int, int);
+class Move {
+    private: 
+        int startSq;
+        int endSq;
+    public:
+        Move(int, int);
 };
 
-#endif MOVE_H_
+#endif

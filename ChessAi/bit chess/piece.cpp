@@ -1,3 +1,6 @@
+#include <algorithm>
+using namespace std;
+
 const char none = 0b00000;
 const char pawn = 0b00001;
 const char knight = 0b00010;
@@ -56,16 +59,17 @@ const char BlackKing() {
 
 
 //TEST PIECE COLOR AND TYPE
-const char getPieceValue(const char p) {
-    char value = isWhite(p) ? p - 16 : p - 8;
-    return value;
-}
 
 bool isWhite(const char p) {
     return (p - white >= 0b0);
 }
 bool isBlack(const char p) {
     return !isWhite(p);
+}
+
+const char getPieceValue(const char p) {
+    char value = isWhite(p) ? p - 16 : p - 8;
+    return value;
 }
 
 bool isKing(const char p) {
@@ -89,6 +93,7 @@ bool isPawn(const char p) {
 bool isNone(const char p) {
     return (p == 0b0);
 }
+
 
 bool isColor(const char a, const char b) {
     return (a >> 3) == (b >> 3);
@@ -128,3 +133,21 @@ int** precomputedMoveData() {
 }
 
 int** numSqauresToEdge = precomputedMoveData();
+
+
+void generatePossibleAttackersOnKings() {
+    int* attackersOnWhiteKing[64];
+    int* attackersOnBlackKing[64];
+
+    for(int file = 0; file < 8; file++) {
+        for(int rank = 0; rank < 8; rank++) {
+            //need to get knights attacking squares 
+            //need to get pawns attacking sqaures
+            //need to get king attacking sqaures
+            //need to get rook atacking squares
+            //need to get bishop atacking squares
+            //need to get queen atacking squares
+
+        }
+    }
+}

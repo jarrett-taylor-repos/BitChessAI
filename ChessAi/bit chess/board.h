@@ -1,10 +1,12 @@
-#ifndef BOARD_H_
-#define BOARD_H_
+#ifndef BOARD_H
+#define BOARD_H
+#include "move.cpp"
 #include <string>
+#include <vector>
 
 class Board {
     private:
-        int* squares;
+        char squares[64];
         std::string fen;
         std::string castlingRights;
         int halfTurnNum;
@@ -12,12 +14,19 @@ class Board {
         std::string enPassantTarget;
         int moveColor;
         
-        vector<Move> moves;
+        std::vector<Move> moves;
+
+        int whiteKingSqaure;
+        int blackKingSqaure;
     public:
         Board(std::string);
         void loadFen(std::string);
-        vector<Move> generateMoves();
+        void generateMoves();
+        void generateSlidingMoves(int, const char);
+
+        void print();
+        std::string pieceToString(const char);
 };
 
 
-#endif BOARD_H_
+#endif

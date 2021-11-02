@@ -1,30 +1,10 @@
 #include "board.h"
 #include "piece.cpp"
-#include "move.cpp"
+#include "helper.cpp"
 #include <map>
-#include <vector>
-#include <algorithm>
-using namespace std;
+#include <iostream>
 
-//not in board
-vector<string> split(string str, string token){
-    vector<string>result;
-    while(str.size()){
-        int index = str.find(token);
-        if(index!=string::npos){
-            result.push_back(str.substr(0,index));
-            str = str.substr(index+token.size());
-            if(str.size()==0)result.push_back(str);
-        }else{
-            result.push_back(str);
-            str = "";
-        }
-    }
-    return result;
-}
-
-
-vector<Move> Board::generateMoves() {
+void Board::generateMoves() {
     for(int startSq = 0; startSq < 64; startSq++) {
         const char piece = squares[startSq];
         if(isColor(piece, moveColor)) {
@@ -61,7 +41,9 @@ void Board::generateSlidingMoves(int startSq, const char piece) {
 
 //in board
 Board::Board(string s="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1") {
-    squares = new int[64];
+    for(int i = 0; i < 64; i++) {
+        squares[i] = none;
+    }
     loadFen(s);
 }
 
@@ -106,4 +88,54 @@ void Board::loadFen(string f="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq
         }
     }
     return;
+}
+
+void Board::print() {
+    for(int file = 7; file >= 0; file--) {
+        for(int rank = 0; rank < 8; rank++) {
+            int value = file*8 + rank;
+            const char piece = squares[value];
+            cout << pieceToString(piece) << " ";
+        }
+        cout << endl;
+    }
+}
+
+string Board::pieceToString(const char p) {
+    string s="";
+    if(isNone(p)) {
+        s = ".";
+        return s;
+    }
+    if(isWhite(p)) {
+        if(isPawn(p)) {
+            s = "P";
+        } else if (isQueen(p)) {
+            s = "Q";
+        } else if (isRook(p)) {
+            s = "R";
+        } else if (isBishop(p)) {
+            s = "B";
+        } else if (isKnight(p)) {
+            s = "N";
+        } else { //is king
+            s = "K";
+        }
+
+    } else {
+        if(isPawn(p)) {
+            s = "p";
+        } else if (isQueen(p)) {
+            s = "q";
+        } else if (isRook(p)) {
+            s = "r";
+        } else if (isBishop(p)) {
+            s = "b";
+        } else if (isKnight(p)) {
+            s = "n";
+        } else { //is king
+            s = "k";
+        }
+    }
+    return s;
 }
