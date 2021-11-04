@@ -5,7 +5,16 @@
 #include <iostream>
 
 void Board::generateMoves() {
+    precomputedAttackerData kingAttackers;
+    vector<pair<int, precomputedAttackerData>> attackersOnSquare;
+    vector<pair<int, precomputedAttackerData>> allAttackersOnSquare = getPossibleAttacker(moveColor);
     for(int startSq = 0; startSq < 64; startSq++) {
+        const char piece = squares[startSq];
+        for(int i = 0; i < allAttackersOnSquare.size(); i++) {
+            if(allAttackersOnSquare[i].first == startSq) {
+                attackersOnSquare.push_back(allAttackersOnSquare[i]); 
+            }
+        }
         const char piece = squares[startSq];
         if(isColor(piece, moveColor)) {
             if(isSlidingPiece(piece)) {
@@ -36,10 +45,61 @@ void Board::generateSlidingMoves(int startSq, const char piece) {
     }
 }
 
+void Board::getChecks(const char color) {
+    int king = getKing(color);
+    vector<pair<int, precomputedAttackerData>> possibleAttackersOnSquare = getPossibleAttacker(moveColor);
+    for(int i = 0; i < possibleAttackersOnSquare.size(); i++) {
+        precomputedAttackerData data = possibleAttackersOnSquare[i].second;
+        int startSq = possibleAttackersOnSquare[i].first;
+        int targetSq = data.getTargetSq();
+        char dataPiece = data.getPiece();
+        char boardPiece = squares[startSq];
+        bool possiblePin = data.getPossiblePin();
+        if(targetSq == king && dataPiece == boardPiece && possiblePin) {
+            int numSquaresAway = data.getNumSquaresAway();
+            bool noBlockers = noPiecesBetween(startSq, targetSq, numSquaresAway);
+            if(noBlockers) {
+                //check
+            }
+        }
+        
+    }
+}
+
+bool Board::noPiecesBetween(int startSq, int targetSq, int numSquaresAway) {
+    if(abs(startSq-targetSq) < 10 || !isSlidingPiece(squares[startSq]) || numSquaresAway == 0) { //too close to have pieces between OR piece cant pin
+        return true;
+    }
+    bool noneBetween = true;
+    int diffIndex = (startSq-targetSq)/numSquaresAway;
+    for(int i = startSq + diffIndex; i < targetSq; i += diffIndex) {
+        if(!isNone(squares[i])) {
+            noneBetween = false;
+        }
+    }
+    return noneBetween;
+
+}
+
+int Board::getKing(const char color) {
+    if(color == white) {
+        return whiteKingSqaure;
+    } 
+    if(color == black) {
+        return blackKingSqaure;
+    }
+    return -1;
+}
 
 
+vector<pair<int, precomputedAttackerData>> Board::getPossibleAttacker(char color) {
+    if(color == white) {
+        return attackersOnWhite;
+    } else {
+        return attackersOnBlack;
+    }
+}
 
-//in board
 Board::Board(string s="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1") {
     for(int i = 0; i < 64; i++) {
         squares[i] = none;
@@ -48,7 +108,7 @@ Board::Board(string s="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 }
 
 void Board::loadFen(string f="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1") {
-    map<char, const int> piece_map = {
+    map<char, const char> piece_map = {
         {'k', BlackKing()},
         {'q', BlackQueen()},
         {'r', BlackRook()},
@@ -81,14 +141,28 @@ void Board::loadFen(string f="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq
             if(isdigit(ch)) {
                 file += (int) ch - '0';
             } else {
-                const int piece = piece_map.find(ch)->second;
+                const char piece = piece_map.find(ch)->second;
                 squares[rank * 8 + file] = piece;
+                if(ch == 'k') {
+                    blackKingSqaure = rank * 8 + file;
+                }
+                if(ch == 'K') {
+                    whiteKingSqaure = rank * 8 + file;
+                }
                 file++;
             }
         }
     }
     return;
 }
+
+Board::Board(const Board&) {
+
+}
+Board& Board::operator=(const Board&) {
+
+}
+
 
 void Board::print() {
     for(int file = 7; file >= 0; file--) {
