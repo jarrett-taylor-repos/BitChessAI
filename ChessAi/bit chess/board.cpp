@@ -5,26 +5,28 @@
 #include <iostream>
 
 void Board::generateMoves() {
-    precomputedAttackerData kingAttackers;
-    vector<pair<int, precomputedAttackerData>> attackersOnSquare;
-    vector<pair<int, precomputedAttackerData>> allAttackersOnSquare = getPossibleAttacker(moveColor);
-    for(int startSq = 0; startSq < 64; startSq++) {
-        const char piece = squares[startSq];
-        for(int i = 0; i < allAttackersOnSquare.size(); i++) {
-            if(allAttackersOnSquare[i].first == startSq) {
-                attackersOnSquare.push_back(allAttackersOnSquare[i]); 
-            }
-        }
-        const char piece = squares[startSq];
-        if(isColor(piece, moveColor)) {
-            if(isSlidingPiece(piece)) {
-                generateSlidingMoves(startSq, piece);
-            }
-        }
+    vector<pair<int, int>> checks = getChecks(moveColor);
+    vector<pair<int, precomputedAttackerData>> precomputtedPossibleAttackers = getPossibleAttacker(moveColor);
+    for(int pieceIndex = 0; pieceIndex < allPieces.size(); pieceIndex++) {
+        char pieceSq = allPieces[pieceIndex];
+        for(int attackerIdx = 0; attackerIdx < precomputtedPossibleAttackers.size(); attackerIdx++) {
+            pair<int, precomputedAttackerData> preAtt = precomputtedPossibleAttackers[attackerIdx];
+            int attStartSq = preAtt.first;
+            precomputedAttackerData attData = preAtt.second;
+        } 
+    }
+    
+    if(checks.size() == 2) {
+        //return only king moves that are not check
+    } else if (checks.size() == 1) {
+        //return all moves that block, check or king move that is not check after checking pinned pieces
+    } else {
+        //return all moves after checking pinned pieces
     }
 }
 
 void Board::generateSlidingMoves(int startSq, const char piece) {
+    //need to test if pin and if between attack and pin
     int startDirIndex = isBishop(piece) ? 4 : 0;
     int endDirIndex = isRook(piece) ? 4 : 8; 
 
@@ -40,13 +42,55 @@ void Board::generateSlidingMoves(int startSq, const char piece) {
             if(!isColor(pieceOnTargetSq, moveColor)) {
                 break;
             }
-            
         }
     }
 }
 
-void Board::getChecks(const char color) {
+void Board::generateKingMoves(int startSq, const char piece) {
+    int size = sizeof(kingMoves[startSq])/sizeof(int);
+    for(int i = 0; i < size; i++) {
+        int targetSquare = kingMoves[startSq][i];
+        if(true) {//if is not check and target square does not hold piece of same color
+            moves.push_back(Move(startSq, targetSquare));
+        }
+    }
+}
+void Board::generatePawnMoves(int startSq, const char piece) {
+    if(isWhite(piece)) {
+        int size = sizeof(whitePawnMoves[startSq])/sizeof(int);
+        for(int i = 0; i < size; i++) {
+            int targetSquare = whitePawnMoves[startSq][i];
+            if(true) {//if is not pinned or stays between pin, need enpassant and double pawn move and capture and promotion logic here
+                moves.push_back(Move(startSq, targetSquare));
+            }
+        }
+    } else {
+        int size = sizeof(blackPawnMoves[startSq])/sizeof(int);
+        for(int i = 0; i < size; i++) {
+            int targetSquare = blackPawnMoves[startSq][i];
+            if(true) {//if is not pinned or stays between pin, need enpassant and double pawn move and capture and promotion logic here
+                moves.push_back(Move(startSq, targetSquare));
+            }
+        }
+    }
+}
+void Board::generateKnightMoves(int startSq, const char piece) {
+    int size = sizeof(knightMoves[startSq])/sizeof(int);
+    for(int i = 0; i < size; i++) {
+        int targetSquare = knightMoves[startSq][i];
+        if(true) {//if is not pinned and moves to square that holds piece of different color
+            moves.push_back(Move(startSq, targetSquare));
+        }
+    }
+}
+
+void Board::isPiecePinned(int attSq, int pinSq) {
+
+}
+
+vector<pair<int, int>> Board::getChecks(const char color) {
     int king = getKing(color);
+    vector<pair<int, int>> checks;
     vector<pair<int, precomputedAttackerData>> possibleAttackersOnSquare = getPossibleAttacker(moveColor);
     for(int i = 0; i < possibleAttackersOnSquare.size(); i++) {
         precomputedAttackerData data = possibleAttackersOnSquare[i].second;
@@ -60,10 +104,12 @@ void Board::getChecks(const char color) {
             bool noBlockers = noPiecesBetween(startSq, targetSq, numSquaresAway);
             if(noBlockers) {
                 //check
+                pair<int, int> sq_piece = make_pair(startSq, boardPiece);
+                checks.push_back(sq_piece);
             }
         }
-        
     }
+    return checks;
 }
 
 bool Board::noPiecesBetween(int startSq, int targetSq, int numSquaresAway) {
@@ -81,6 +127,7 @@ bool Board::noPiecesBetween(int startSq, int targetSq, int numSquaresAway) {
 
 }
 
+
 int Board::getKing(const char color) {
     if(color == white) {
         return whiteKingSqaure;
@@ -91,7 +138,6 @@ int Board::getKing(const char color) {
     return -1;
 }
 
-
 vector<pair<int, precomputedAttackerData>> Board::getPossibleAttacker(char color) {
     if(color == white) {
         return attackersOnWhite;
@@ -99,6 +145,12 @@ vector<pair<int, precomputedAttackerData>> Board::getPossibleAttacker(char color
         return attackersOnBlack;
     }
 }
+
+
+bool Board::makeMove(int startSq, int targetSq) {
+
+}
+
 
 Board::Board(string s="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1") {
     for(int i = 0; i < 64; i++) {
@@ -143,6 +195,7 @@ void Board::loadFen(string f="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq
             } else {
                 const char piece = piece_map.find(ch)->second;
                 squares[rank * 8 + file] = piece;
+                allPieces.insert(make_pair(rank * 8 + file, piece));
                 if(ch == 'k') {
                     blackKingSqaure = rank * 8 + file;
                 }
@@ -154,6 +207,16 @@ void Board::loadFen(string f="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq
         }
     }
     return;
+}
+
+void Board::clearSquare(int squareIdx) {
+    allPieces.erase(squareIdx);
+    squares[squareIdx] = none;
+}
+void Board::addSquare(int sqaureIdx, int piece) {
+    pair<int, int> addPair = make_pair(sqaureIdx, piece);
+    allPieces.insert(addPair);
+    squares[sqaureIdx] = piece;
 }
 
 Board::Board(const Board&) {
@@ -173,6 +236,15 @@ void Board::print() {
         }
         cout << endl;
     }
+}
+
+void Board::setMoveColor() {
+    if(moveColor == white) {
+        moveColor = black;
+    } else {
+        moveColor = white;
+    }
+    return;
 }
 
 string Board::pieceToString(const char p) {
@@ -212,4 +284,21 @@ string Board::pieceToString(const char p) {
         }
     }
     return s;
+}
+
+string Board::intToStringNotation(int startSq) {
+    map<int, string>::iterator it;
+    it = intToStringMap.find(startSq);
+    if(it != intToStringMap.end()) {
+        return it->second;
+    }
+    return "none";
+}
+int Board::stringToIntSquare(string notation) {
+    map<string, int>::iterator it;
+    it = stringToIntMap.find(notation);
+    if(it != stringToIntMap.end()) {
+        return it->second;
+    }
+    return -1;
 }

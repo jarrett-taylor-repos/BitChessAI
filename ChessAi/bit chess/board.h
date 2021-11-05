@@ -15,22 +15,35 @@ class Board {
         char moveColor;
         
         std::vector<Move> moves;
+        std::vector<precomputedAttackerData> attackers;
 
         int whiteKingSqaure;
         int blackKingSqaure;
+        map<int,int> allPieces;
     public:
         Board(std::string);
         Board(const Board&);
         Board& operator=(const Board&);
         void loadFen(std::string);
+        void clearSquare(int);
+        void addSquare(int, int);
+        bool makeMove(int, int);
         void generateMoves();
         void generateSlidingMoves(int, const char);
-        void getChecks(const char);
+        void generateKingMoves(int startSq, const char piece);
+        void generatePawnMoves(int startSq, const char piece);
+        void generateKnightMoves(int startSq, const char piece);
+        void setAttackers(int startSq);
+        void isPiecePinned(int attSq, int pinSq);
+        vector<pair<int, int>> getChecks(const char);
         bool noPiecesBetween(int, int, int);
         int getKing(const char);
         vector<pair<int, precomputedAttackerData>> getPossibleAttacker(char color);
         void print();
+        void setMoveColor();
         std::string pieceToString(const char);
+        std::string intToStringNotation(int);
+        int stringToIntSquare(std::string);
 };
 
 

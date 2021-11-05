@@ -113,13 +113,25 @@ bool isSlidingPiece(const char p) {
 
 //calulate moves potentials
 const int directionOffSets[8] = {8, -8, -1, 1, 7, -7, 9, -9};
+const int knightOffsets[8] = {6, 15, 17, 10, -6, -25, -17, -10};
+const int whitePawnOffsets[4] = {8, 16, 7, 9};
+const int blackPawnOffsets[4] = {-8, -16, -7, -9};
+const int whitePawnAttckingOffsets[2] = {7, 9};
+const int blackPawnAttckingOffsets[2] = {-9, -7};
 int** numSqauresToEdge;
+int** knightMoves;
+int** blackPawnMoves;
+int** whitePawnMoves;
+int** kingMoves;
 vector<pair<int, precomputedAttackerData>> attackersOnWhite;
 vector<pair<int, precomputedAttackerData>> attackersOnBlack;
+map<int, string> intToStringMap;
+map<int, string> stringToIntMap;
 
 void precomputtedMoveData() {
     for(int file = 0; file < 8; file++) {
         for(int rank = 0; rank < 8; rank++) {
+            //sliding pieces: queen, rook, bishop
             int numNorth = 7-rank;
             int numSouth = rank;
             int numWest = file;
@@ -136,6 +148,34 @@ void precomputtedMoveData() {
                 min(numSouth, numWest)
             };
             numSqauresToEdge[sqIndex] = directionArray;
+
+            //knights
+            int knightarray[8];
+            for(int i=0; i < 8; i++) {
+                knightarray[i] = sqIndex + knightOffsets[i];
+            }
+            knightMoves[sqIndex] = knightarray;
+
+            //kings
+            int kingarray[8];
+            for(int i=0; i < 8; i++) {
+                kingarray[i] = sqIndex + directionOffSets[i];
+            }
+            kingMoves[sqIndex] = kingarray;
+
+            //white pawns
+            int whitepawnarray[4];
+            for(int i=0; i < 8; i++) {
+                whitepawnarray[i] = sqIndex + whitePawnOffsets[i];
+            }
+            whitePawnMoves[sqIndex] = whitepawnarray;
+
+            //black pawns
+            int blackpawnarray[4];
+            for(int i=0; i < 8; i++) {
+                blackpawnarray[i] = sqIndex + blackPawnOffsets[i];
+            }
+            blackPawnMoves[sqIndex] = blackpawnarray;
         }
     }
     return;
@@ -220,7 +260,34 @@ void precomputtedPossibleAttackers() {
     return;
 }
 
+
+void precomputtedIntToString() {
+    for(int file = 0; file < 8; file++) {
+        for(int rank = 0; rank < 8; rank++) { 
+            int startSq = file*8 + rank;
+            string s = "";
+            int remainder = startSq % 8;
+            switch(remainder) {
+                case 0: s+="a"; break;
+                case 1: s+="b"; break;
+                case 2: s+="c"; break;
+                case 3: s+="d"; break;
+                case 4: s+="e"; break;
+                case 5: s+="f"; break;
+                case 6: s+="g"; break;
+                case 7: s+="h"; break;
+                default: break;
+            }
+            int intRow = (startSq-remainder)/8 + 1;
+            s += to_string(intRow);
+            intToStringMap.insert(make_pair(startSq, s));
+            stringToIntMap.insert(make_pair(s, startSq));
+        }
+    }
+}
+
 void init() {
     precomputtedMoveData();
     precomputtedPossibleAttackers();
+    precomputtedIntToString();
 }
