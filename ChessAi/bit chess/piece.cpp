@@ -1,5 +1,8 @@
 #include "precomputedAttackerData.h"
 #include <algorithm>
+#include <vector>
+#include <map>
+#include <string>
 using namespace std;
 
 //5 bits
@@ -126,7 +129,7 @@ int** kingMoves;
 vector<pair<int, precomputedAttackerData>> attackersOnWhite;
 vector<pair<int, precomputedAttackerData>> attackersOnBlack;
 map<int, string> intToStringMap;
-map<int, string> stringToIntMap;
+map<string, int> stringToIntMap;
 
 void precomputtedMoveData() {
     for(int file = 0; file < 8; file++) {
@@ -239,8 +242,6 @@ void precomputtedSlidingPieces(int startSq, const char piece) {
 }
 
 void precomputtedPossibleAttackers() {
-
-    const int knightOffsets[8] = {6, 15, 17, 10, -6, -25, -17, -10};
     const int whitePawnAttckingOffsets[2] = {7, 9};
     const int blackPawnAttckingOffsets[2] = {-9, -7};
 
@@ -259,7 +260,6 @@ void precomputtedPossibleAttackers() {
     }
     return;
 }
-
 
 void precomputtedIntToString() {
     for(int file = 0; file < 8; file++) {
@@ -286,7 +286,7 @@ void precomputtedIntToString() {
     }
 }
 
-void init() {
+void init() {//load on start of program
     precomputtedMoveData();
     precomputtedPossibleAttackers();
     precomputtedIntToString();

@@ -1,20 +1,22 @@
 #include "board.h"
 #include "piece.cpp"
 #include "helper.cpp"
-#include <map>
 #include <iostream>
+
+void Board::setAttackers() {
+    vector<pair<int, precomputedAttackerData>> precomputtedPossibleAttackers = getPossibleAttacker(moveColor);
+    for(int pieceIndex = 0; pieceIndex < allPieces.size(); pieceIndex++) {
+        int square = allPieces[pieceIndex];
+        char piece = squares[square];
+        if(!isColor(piece, moveColor)) {
+            //set attackling squares
+            
+        }
+    }
+}
 
 void Board::generateMoves() {
     vector<pair<int, int>> checks = getChecks(moveColor);
-    vector<pair<int, precomputedAttackerData>> precomputtedPossibleAttackers = getPossibleAttacker(moveColor);
-    for(int pieceIndex = 0; pieceIndex < allPieces.size(); pieceIndex++) {
-        char pieceSq = allPieces[pieceIndex];
-        for(int attackerIdx = 0; attackerIdx < precomputtedPossibleAttackers.size(); attackerIdx++) {
-            pair<int, precomputedAttackerData> preAtt = precomputtedPossibleAttackers[attackerIdx];
-            int attStartSq = preAtt.first;
-            precomputedAttackerData attData = preAtt.second;
-        } 
-    }
     
     if(checks.size() == 2) {
         //return only king moves that are not check
@@ -45,7 +47,6 @@ void Board::generateSlidingMoves(int startSq, const char piece) {
         }
     }
 }
-
 void Board::generateKingMoves(int startSq, const char piece) {
     int size = sizeof(kingMoves[startSq])/sizeof(int);
     for(int i = 0; i < size; i++) {
@@ -84,9 +85,6 @@ void Board::generateKnightMoves(int startSq, const char piece) {
     }
 }
 
-void Board::isPiecePinned(int attSq, int pinSq) {
-
-}
 
 vector<pair<int, int>> Board::getChecks(const char color) {
     int king = getKing(color);
@@ -127,6 +125,9 @@ bool Board::noPiecesBetween(int startSq, int targetSq, int numSquaresAway) {
 
 }
 
+void Board::isPiecePinned(int attSq, int pinSq) {
+
+}
 
 int Board::getKing(const char color) {
     if(color == white) {
@@ -151,7 +152,7 @@ bool Board::makeMove(int startSq, int targetSq) {
 
 }
 
-
+//CONSTRUCTORS AND OPERATORS
 Board::Board(string s="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1") {
     for(int i = 0; i < 64; i++) {
         squares[i] = none;
@@ -209,15 +210,6 @@ void Board::loadFen(string f="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq
     return;
 }
 
-void Board::clearSquare(int squareIdx) {
-    allPieces.erase(squareIdx);
-    squares[squareIdx] = none;
-}
-void Board::addSquare(int sqaureIdx, int piece) {
-    pair<int, int> addPair = make_pair(sqaureIdx, piece);
-    allPieces.insert(addPair);
-    squares[sqaureIdx] = piece;
-}
 
 Board::Board(const Board&) {
 
@@ -226,6 +218,16 @@ Board& Board::operator=(const Board&) {
 
 }
 
+
+void Board::clearSquare(int squareIdx) {
+    allPieces.erase(squareIdx);
+    squares[squareIdx] = none;
+}
+void Board::addSquare(int sqaureIdx, char piece) {
+    pair<int, char> addPair = make_pair(sqaureIdx, piece);
+    allPieces.insert(addPair);
+    squares[sqaureIdx] = piece;
+}
 
 void Board::print() {
     for(int file = 7; file >= 0; file--) {

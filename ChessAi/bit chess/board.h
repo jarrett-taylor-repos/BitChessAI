@@ -19,15 +19,17 @@ class Board {
 
         int whiteKingSqaure;
         int blackKingSqaure;
-        map<int,int> allPieces;
+        int* pinnedSquares;
+        map<int,char> allPieces;
     public:
         Board(std::string);
         Board(const Board&);
         Board& operator=(const Board&);
         void loadFen(std::string);
         void clearSquare(int);
-        void addSquare(int, int);
+        void addSquare(int, char);
         bool makeMove(int, int);
+        void setAttackers();
         void generateMoves();
         void generateSlidingMoves(int, const char);
         void generateKingMoves(int startSq, const char piece);

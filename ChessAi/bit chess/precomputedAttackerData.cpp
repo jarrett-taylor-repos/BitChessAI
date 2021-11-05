@@ -9,7 +9,8 @@ precomputedAttackerData& precomputedAttackerData::operator=(const precomputedAtt
     targetSq = other.targetSq;
     piece = other.piece;
     possiblePin = other.possiblePin;
-    numSquaresAway= other.numSquaresAway;
+    numSquaresAway = other.numSquaresAway;
+    return *this;
 }
 
 int precomputedAttackerData::getTargetSq() { return targetSq; }
