@@ -38,7 +38,7 @@ int precomputedAttackerData::getNumSquaresAway() {return numSquaresAway; }
 
 ostream& operator<<(ostream& os, const precomputedAttackerData& preAttData) {
     os << "Target Square: " << preAttData.targetSq << " ";
-    os << "Piece: " << preAttData.piece << " ";
+    os << "Piece: " << to_string((int)preAttData.piece) << " ";
     os << "Possible Pin: " << preAttData.possiblePin << " ";
     os << "Num Sqaures Away: " << preAttData.numSquaresAway << endl;
     return os;
