@@ -1,18 +1,19 @@
 #include "board.h"
-#include "piece.cpp"
 #include "helper.cpp"
-#include <iostream>
 
 void Board::setAttackers() {
-    vector<pair<int, precomputedAttackerData>> precomputtedPossibleAttackers = getPossibleAttacker(moveColor);
+    multimap<int, precomputedAttackerData> precomputtedPossibleAttackers = getPossibleAttacker(moveColor);
     for(int pieceIndex = 0; pieceIndex < allPieces.size(); pieceIndex++) {
         int square = allPieces[pieceIndex];
         char piece = squares[square];
         if(!isColor(piece, moveColor)) {
             //set attackling squares
+        
             
         }
     }
+    //for all squares that have black pieces on startsq
+    //get all precompuuted attackers for squares where the startSq and piece are the same
 }
 
 void Board::generateMoves() {
@@ -89,24 +90,6 @@ void Board::generateKnightMoves(int startSq, const char piece) {
 vector<pair<int, int>> Board::getChecks(const char color) {
     int king = getKing(color);
     vector<pair<int, int>> checks;
-    vector<pair<int, precomputedAttackerData>> possibleAttackersOnSquare = getPossibleAttacker(moveColor);
-    for(int i = 0; i < possibleAttackersOnSquare.size(); i++) {
-        precomputedAttackerData data = possibleAttackersOnSquare[i].second;
-        int startSq = possibleAttackersOnSquare[i].first;
-        int targetSq = data.getTargetSq();
-        char dataPiece = data.getPiece();
-        char boardPiece = squares[startSq];
-        bool possiblePin = data.getPossiblePin();
-        if(targetSq == king && dataPiece == boardPiece && possiblePin) {
-            int numSquaresAway = data.getNumSquaresAway();
-            bool noBlockers = noPiecesBetween(startSq, targetSq, numSquaresAway);
-            if(noBlockers) {
-                //check
-                pair<int, int> sq_piece = make_pair(startSq, boardPiece);
-                checks.push_back(sq_piece);
-            }
-        }
-    }
     return checks;
 }
 
@@ -139,7 +122,7 @@ int Board::getKing(const char color) {
     return -1;
 }
 
-vector<pair<int, precomputedAttackerData>> Board::getPossibleAttacker(char color) {
+multimap<int, precomputedAttackerData> Board::getPossibleAttacker(char color) {
     if(color == white) {
         return attackersOnWhite;
     } else {
@@ -148,7 +131,29 @@ vector<pair<int, precomputedAttackerData>> Board::getPossibleAttacker(char color
 }
 
 
-bool Board::makeMove(int startSq, int targetSq) {
+bool Board::makeMove(string start, string target) {
+    int startSq = stringToIntSquare(start);
+    int targetSq = stringToIntSquare(target);
+    if(startSq == -1 || targetSq == -1) {
+        cerr << start << target << " -> Illegal move." << endl;
+        return false;
+    }
+
+    bool moveInMoves = false;
+    for(auto m : moves) {
+        Move testMove = Move(startSq, targetSq);
+        if(testMove == m) {
+            moveInMoves = true;
+            break;
+        }
+    }
+
+    if(!moveInMoves) {
+        cerr << start << target << " -> Illegal move." << endl;
+        return false;
+    }
+
+
 
 }
 
@@ -216,6 +221,7 @@ Board::Board(const Board&) {
 }
 Board& Board::operator=(const Board&) {
 
+    return *this;
 }
 
 

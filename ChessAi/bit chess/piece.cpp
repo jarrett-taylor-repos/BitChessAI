@@ -1,4 +1,4 @@
-#include "precomputedAttackerData.h"
+#include "precomputedAttackerData.cpp"
 #include <algorithm>
 #include <vector>
 #include <map>
@@ -7,16 +7,18 @@ using namespace std;
 
 //5 bits
 //first 2 store color, last 3 store piece type
-const char none = 0b00000; //0
-const char pawn = 0b00001; //1
-const char knight = 0b00010; //2
-const char bishop = 0b00011; //3
-const char rook = 0b00100; //4 
-const char queen = 0b00101; //5
-const char king = 0b00110; //6
+const char none = 0b000; //0
+const char pawn = 0b001; //1
+const char knight = 0b010; //2
+const char bishop = 0b011; //3
+const char rook = 0b100; //4 
+const char queen = 0b101; //5
+const char king = 0b110; //6
 
 const char black = 0b01000; //8
 const char white = 0b10000; //16
+
+
 
 //NONE
 const char None() {
@@ -121,13 +123,13 @@ const int whitePawnOffsets[4] = {8, 16, 7, 9};
 const int blackPawnOffsets[4] = {-8, -16, -7, -9};
 const int whitePawnAttckingOffsets[2] = {7, 9};
 const int blackPawnAttckingOffsets[2] = {-9, -7};
-int** numSqauresToEdge;
-int** knightMoves;
-int** blackPawnMoves;
-int** whitePawnMoves;
-int** kingMoves;
-vector<pair<int, precomputedAttackerData>> attackersOnWhite;
-vector<pair<int, precomputedAttackerData>> attackersOnBlack;
+int* numSqauresToEdge[64]; //int* is the same as int[]
+int* knightMoves[8];
+int* blackPawnMoves[4];
+int* whitePawnMoves[4];
+int* kingMoves[8];
+multimap<int, precomputedAttackerData> attackersOnWhite;
+multimap<int, precomputedAttackerData> attackersOnBlack;
 map<int, string> intToStringMap;
 map<string, int> stringToIntMap;
 
@@ -184,14 +186,14 @@ void precomputtedMoveData() {
     return;
 }
 
-void precomputtedPawnAttackers(const char color, int startSq, const int* offsets, int size, const char piece) {
+void precomputtedPawnAttackers(const char color, int startSq, const int offsets[], int size, const char piece) {
     if(isWhite(color)) {
         for(int whitePawnIndex = 0; whitePawnIndex < size; whitePawnIndex++) {
             int targetSQ = startSq + offsets[whitePawnIndex];
             if(targetSQ >= 0 && targetSQ < 64) {
                 //add possible pawn attacker, add to black king
                 precomputedAttackerData data(targetSQ, piece, false, 0);
-                attackersOnBlack.push_back(make_pair(startSq, data));
+                attackersOnBlack.insert(make_pair(startSq, data));
             }
         }
     } else {
@@ -200,21 +202,21 @@ void precomputtedPawnAttackers(const char color, int startSq, const int* offsets
             if(targetSQ >= 0 && targetSQ < 64) {
                 //add possible pawn attacker, add to white king
                 precomputedAttackerData data(targetSQ, piece, false, 0);
-                attackersOnWhite.push_back(make_pair(startSq, data));
+                attackersOnBlack.insert(make_pair(startSq, data));
             }
         }
     }
     return;
 }
 
-void precomputedAttackersHelper(int startSq, const int* offsets, int size, const char piece) {
+void precomputedAttackersHelper(int startSq, const int offsets[], int size, const char piece) {
     for(int index = 0; index < size; index++) {
         int targetSQ = startSq + offsets[index];
         if(targetSQ >= 0 && targetSQ < 64) {
-            //add possible knight attacker
             precomputedAttackerData data(targetSQ, piece, false, 0);
-            attackersOnWhite.push_back(make_pair(startSq, data));
-            attackersOnBlack.push_back(make_pair(startSq, data));
+            pair<int, precomputedAttackerData> addPair = make_pair(startSq, data);
+            attackersOnWhite.insert(addPair);
+            attackersOnBlack.insert(addPair);
         }
     }
     return;
@@ -229,12 +231,12 @@ void precomputtedSlidingPieces(int startSq, const char piece) {
             int targetSq = startSq + directionOffSets[directionIndex] * (n+1);
             if(abs(targetSq-startSq) < 10) {
                 precomputedAttackerData data(targetSq, rook, false, n);
-                attackersOnWhite.push_back(make_pair(startSq, data));
-                attackersOnBlack.push_back(make_pair(startSq, data));
+                attackersOnWhite.insert(make_pair(startSq, data));
+                attackersOnBlack.insert(make_pair(startSq, data));
             } else {
                 precomputedAttackerData data(targetSq, rook, true, n);
-                attackersOnWhite.push_back(make_pair(startSq, data));
-                attackersOnBlack.push_back(make_pair(startSq, data));
+                attackersOnWhite.insert(make_pair(startSq, data));
+                attackersOnBlack.insert(make_pair(startSq, data));
             }
         }
     }
