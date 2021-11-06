@@ -164,10 +164,10 @@ multimap<int, precomputedAttackerData> precomputtedSlidingPieces(int startSq, co
         for(int n = 0; n < numSqauresToEdge[startSq][directionIndex]; n++) {
             int targetSq = startSq + directionOffSets[directionIndex] * (n+1);
             if(abs(targetSq-startSq) < 10) {
-                precomputedAttackerData data(targetSq, rook, false, n);
+                precomputedAttackerData data(targetSq, piece, false, n);
                 temp.insert(make_pair(startSq, data));
             } else {
-                precomputedAttackerData data(targetSq, rook, true, n);
+                precomputedAttackerData data(targetSq, piece, true, n);
                 temp.insert(make_pair(startSq, data));
             }
         }
