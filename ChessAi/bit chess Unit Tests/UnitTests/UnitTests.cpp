@@ -560,4 +560,56 @@ namespace UnitTests
 		}
 
 	};
+
+	TEST_CLASS(BoardUnitTests) {
+	public:
+		TEST_METHOD(TestDefaultConstructor) {
+
+		}
+		TEST_METHOD(TestCopyConstructor) {
+
+		}
+		TEST_METHOD(TestEqualOperator) {
+
+		}
+		TEST_METHOD(TestLoadFEN) {
+
+		}
+		TEST_METHOD(TestClearSquare) {
+
+		}
+		TEST_METHOD(TestAddSquare) {
+
+		}
+		TEST_METHOD(TestMakeMove) {
+
+		}
+		TEST_METHOD(TestSetAttckers) {
+
+		}
+		TEST_METHOD(TestGenerateMoves) {
+
+		}
+		TEST_METHOD(TestIsPiecePinned) {
+
+		}
+		TEST_METHOD(TestGetChecks) {
+
+		}
+		TEST_METHOD(TestNoPiecesBetween) {
+
+		}
+		TEST_METHOD(TestSetMoveColor) {
+
+		}
+		TEST_METHOD(TestPieceToString) {
+
+		}
+		TEST_METHOD(TestIntToStringNotation) {
+
+		}
+		TEST_METHOD(TestStringToIntSquare) {
+
+		}
+	};
 }
