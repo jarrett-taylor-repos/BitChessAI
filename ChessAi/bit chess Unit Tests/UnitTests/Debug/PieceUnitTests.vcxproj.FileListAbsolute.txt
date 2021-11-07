@@ -1,0 +1,2 @@
+C:\Users\Jarret\Documents\repos\bitchess\BitChessAI\ChessAi\bit chess Unit Tests\PieceUnitTests\Debug\PieceUnitTests.dll
+C:\Users\Jarret\Documents\repos\bitchess\BitChessAI\ChessAi\bit chess Unit Tests\UnitTests\Debug\BitChessUnitTests.dll

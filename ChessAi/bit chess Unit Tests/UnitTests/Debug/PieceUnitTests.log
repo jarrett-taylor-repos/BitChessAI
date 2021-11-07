@@ -1,0 +1,22 @@
+﻿C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Microsoft\VC\v160\Microsoft.CppBuild.targets(513,5): warning MSB8028: The intermediate directory (Debug\) contains files shared from another project (PieceUnitTests.vcxproj).  This can lead to incorrect clean and rebuild behavior.
+  UnitTests.cpp
+C:\Users\Jarret\Documents\repos\bitchess\BitChessAI\ChessAi\bit chess\piece.cpp(120,52): warning C4018: '<': signed/unsigned mismatch
+C:\Users\Jarret\Documents\repos\bitchess\BitChessAI\ChessAi\bit chess\piece.cpp(130,52): warning C4018: '<': signed/unsigned mismatch
+C:\Users\Jarret\Documents\repos\bitchess\BitChessAI\ChessAi\bit chess\piece.cpp(145,30): warning C4018: '<': signed/unsigned mismatch
+C:\Users\Jarret\Documents\repos\bitchess\BitChessAI\ChessAi\bit chess\board.cpp(6,40): warning C4018: '<': signed/unsigned mismatch
+C:\Users\Jarret\Documents\repos\bitchess\BitChessAI\ChessAi\bit chess Unit Tests\UnitTests\UnitTests.cpp(92,22): warning C4018: '<': signed/unsigned mismatch
+C:\Users\Jarret\Documents\repos\bitchess\BitChessAI\ChessAi\bit chess Unit Tests\UnitTests\UnitTests.cpp(98,22): warning C4018: '<': signed/unsigned mismatch
+C:\Users\Jarret\Documents\repos\bitchess\BitChessAI\ChessAi\bit chess Unit Tests\UnitTests\UnitTests.cpp(106,22): warning C4018: '<': signed/unsigned mismatch
+C:\Users\Jarret\Documents\repos\bitchess\BitChessAI\ChessAi\bit chess Unit Tests\UnitTests\UnitTests.cpp(112,22): warning C4018: '<': signed/unsigned mismatch
+C:\Users\Jarret\Documents\repos\bitchess\BitChessAI\ChessAi\bit chess Unit Tests\UnitTests\UnitTests.cpp(130,22): warning C4018: '<': signed/unsigned mismatch
+C:\Users\Jarret\Documents\repos\bitchess\BitChessAI\ChessAi\bit chess Unit Tests\UnitTests\UnitTests.cpp(150,22): warning C4018: '<': signed/unsigned mismatch
+C:\Users\Jarret\Documents\repos\bitchess\BitChessAI\ChessAi\bit chess Unit Tests\UnitTests\UnitTests.cpp(175,22): warning C4018: '<': signed/unsigned mismatch
+C:\Users\Jarret\Documents\repos\bitchess\BitChessAI\ChessAi\bit chess Unit Tests\UnitTests\UnitTests.cpp(200,22): warning C4018: '<': signed/unsigned mismatch
+C:\Users\Jarret\Documents\repos\bitchess\BitChessAI\ChessAi\bit chess Unit Tests\UnitTests\UnitTests.cpp(225,22): warning C4018: '<': signed/unsigned mismatch
+C:\Users\Jarret\Documents\repos\bitchess\BitChessAI\ChessAi\bit chess Unit Tests\UnitTests\UnitTests.cpp(250,22): warning C4018: '<': signed/unsigned mismatch
+C:\Users\Jarret\Documents\repos\bitchess\BitChessAI\ChessAi\bit chess Unit Tests\UnitTests\UnitTests.cpp(275,22): warning C4018: '<': signed/unsigned mismatch
+C:\Users\Jarret\Documents\repos\bitchess\BitChessAI\ChessAi\bit chess Unit Tests\UnitTests\UnitTests.cpp(300,22): warning C4018: '<': signed/unsigned mismatch
+C:\Users\Jarret\Documents\repos\bitchess\BitChessAI\ChessAi\bit chess Unit Tests\UnitTests\UnitTests.cpp(345,22): warning C4018: '<': signed/unsigned mismatch
+C:\Users\Jarret\Documents\repos\bitchess\BitChessAI\ChessAi\bit chess\board.cpp(158): warning C4715: 'Board::makeMove': not all control paths return a value
+     Creating library C:\Users\Jarret\Documents\repos\bitchess\BitChessAI\ChessAi\bit chess Unit Tests\UnitTests\Debug\BitChessUnitTests.lib and object C:\Users\Jarret\Documents\repos\bitchess\BitChessAI\ChessAi\bit chess Unit Tests\UnitTests\Debug\BitChessUnitTests.exp
+  PieceUnitTests.vcxproj -> C:\Users\Jarret\Documents\repos\bitchess\BitChessAI\ChessAi\bit chess Unit Tests\UnitTests\Debug\BitChessUnitTests.dll
