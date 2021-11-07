@@ -1,0 +1,14 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\bit chess",
+    "\\bit chess Unit Tests",
+    "\\bit chess Unit Tests\\UnitTests",
+    "\\bit chess Unit Tests\\UnitTests\\Debug\\PieceUnitTests.tlog",
+    "\\bit chess Unit Tests\\UnitTests\\x64\\Debug",
+    "\\bit chess Unit Tests\\UnitTests\\x64\\Debug\\PieceUnitTests.tlog",
+    "\\bit chess\\src"
+  ],
+  "SelectedNode": "\\bit chess Unit Tests\\UnitTests\\PieceUnitTests.vcxproj",
+  "PreviewInSolutionExplorer": false
+}

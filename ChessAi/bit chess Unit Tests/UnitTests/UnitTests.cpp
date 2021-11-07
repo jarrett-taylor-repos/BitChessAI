@@ -354,7 +354,6 @@ namespace UnitTests
 				}
 			}
 		}
-		
 		TEST_METHOD(TestMuiltMapAttackers)
 		{
 			multimap<int, precomputedAttackerData> attackersOnWhite = precomputtedPossibleAttackers(white);;
@@ -376,6 +375,17 @@ namespace UnitTests
 					}
 					
 				}
+			}
+		}
+		TEST_METHOD(TestNotationMap) {
+			map<int, string> intToStringMap = precomputtedIntToString();
+			map<string, int> stringToIntMap = precomputtedStringToInt();
+			for (int i = 0; i < 64; i++) {
+				multimap<int, string>::iterator it = intToStringMap.find(i);
+				string notation = it->second;
+				multimap<string, int>::iterator it2 = stringToIntMap.find(notation);
+				int notationInt = it2->second;
+				Assert::AreEqual(i, notationInt);
 			}
 		}
 	};
