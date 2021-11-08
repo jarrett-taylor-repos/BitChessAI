@@ -49,10 +49,13 @@ class Board {
         int getKing(const char);
         multimap<int, precomputedAttackerData> getPossibleAttacker(char);
         void print();
+        char getMoveColor();
         void setMoveColor();
         std::string pieceToString(const char);
         std::string intToStringNotation(int);
         int stringToIntSquare(std::string);
+        char* getSquares();
+        map<int, char> getAllPieces();
 };
 
 

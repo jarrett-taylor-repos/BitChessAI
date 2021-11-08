@@ -246,6 +246,10 @@ void Board::print() {
     }
 }
 
+char Board::getMoveColor() {
+    return moveColor;
+}
+
 void Board::setMoveColor() {
     if(moveColor == white) {
         moveColor = black;
@@ -257,7 +261,7 @@ void Board::setMoveColor() {
 
 string Board::pieceToString(const char p) {
     string s="";
-    if(isNone(p)) {
+    if(isNone(p) || (!isWhite(p) && !isBlack(p)) ) {
         s = ".";
         return s;
     }
@@ -309,4 +313,12 @@ int Board::stringToIntSquare(string notation) {
         return it->second;
     }
     return -1;
+}
+
+char* Board::getSquares() {
+    return squares;
+}
+
+map<int, char> Board::getAllPieces() {
+    return allPieces;
 }

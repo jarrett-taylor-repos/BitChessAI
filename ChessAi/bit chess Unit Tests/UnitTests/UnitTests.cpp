@@ -564,7 +564,19 @@ namespace UnitTests
 	TEST_CLASS(BoardUnitTests) {
 	public:
 		TEST_METHOD(TestDefaultConstructor) {
-
+			Board b;
+			char* allsquares = b.getSquares();
+			vector<int> pieces = {
+				56, 57, 58, 59, 60, 61, 62, 63,
+				48, 49, 50, 51, 52, 53, 54, 55,
+				8, 9, 10, 11, 12, 13, 14, 15,
+				0, 1, 2, 3, 4, 5, 6, 7
+			};
+			for(int i = 0; i < pieces.size(); i++) {
+				char p = allsquares[pieces[i]];
+				bool noNone = !isNone(p);
+				Assert::IsTrue(noNone);
+			}
 		}
 		TEST_METHOD(TestCopyConstructor) {
 
@@ -573,10 +585,31 @@ namespace UnitTests
 
 		}
 		TEST_METHOD(TestLoadFEN) {
-
+			Board b;
+			string fen = "rnbqkbnr/pppp1ppp/8/4p3/3P4/8/PPP1PPPP/RNBQKBNR w KQkq - 0 1";
+			b.loadFen(fen);
+			char* allsquares = b.getSquares();
+			vector<int> pieces = {
+				56, 57, 58, 59, 60, 61, 62, 63,
+				48, 49, 50, 51, 53, 54, 55,
+				36, 27,
+				8, 9, 10, 12, 13, 14, 15,
+				0, 1, 2, 3, 4, 5, 6, 7
+			};
+			for(int i = 0; i < pieces.size(); i++) {
+				char p = allsquares[pieces[i]];
+				bool noNone = !isNone(p);
+				Assert::IsTrue(noNone);
+			}
 		}
 		TEST_METHOD(TestClearSquare) {
-
+			Board b;
+			map<int, char> mapPieces = b.getAllPieces();
+			b.clearSquare(0);
+			map<int, char> mapPieces2 = b.getAllPieces();
+			map<int, char>::iterator it;
+			bool isFound = mapPieces2.find(0) != mapPieces2.end();
+			Assert::IsFalse(isFound);
 		}
 		TEST_METHOD(TestAddSquare) {
 
@@ -600,16 +633,92 @@ namespace UnitTests
 
 		}
 		TEST_METHOD(TestSetMoveColor) {
-
+			Board b;
+			char preMoveColor = b.getMoveColor();
+			b.setMoveColor();
+			char nextMoveColor = b.getMoveColor();
+			Assert::AreNotEqual(preMoveColor, nextMoveColor);
 		}
 		TEST_METHOD(TestPieceToString) {
-
+			Board b;
+			vector<char> pieces = {
+				None(),
+				WhitePawn(), WhiteKnight(), WhiteBishop(), WhiteRook(), WhiteQueen(), WhiteKing(),
+				BlackPawn(), BlackKnight(), BlackBishop(), BlackRook(), BlackQueen(), BlackKing(),
+				pawn, knight, bishop, rook, queen, king
+			};
+			vector<string> pieceValue = {
+				".",
+				"P", "N", "B", "R", "Q", "K",
+				"p", "n", "b", "r", "q", "k",
+				".", ".", ".", ".", ".", "."
+			};
+			for (int i = 0; i < pieces.size(); i++) {
+				string test = b.pieceToString(pieces[i]);
+				Assert::AreEqual(test, pieceValue[i]);
+			}
 		}
 		TEST_METHOD(TestIntToStringNotation) {
-
+			map<int, string> intToStringMap = precomputtedIntToString();
+			map<string, int> stringToIntMap = precomputtedStringToInt();
+			vector<int> ints = {
+				56, 57, 58, 59, 60, 61, 62, 63,
+				48, 49, 50, 51, 52, 53, 54, 55,
+				40, 41, 42, 43, 44, 45, 46, 47,
+				32, 33, 34, 35, 36, 37, 38, 39,
+				24, 25, 26, 27, 28, 29, 30, 31,
+				16, 17, 18, 19, 20, 21, 22, 23,
+				8, 9, 10, 11, 12, 13, 14, 15,
+				0, 1, 2, 3, 4, 5, 6, 7
+			};
+			vector<string> str = {
+				"a8", "b8", "c8", "d8", "e8", "f8", "g8", "h8",
+				"a7", "b7", "c7", "d7", "e7", "f7", "g7", "h7",
+				"a6", "b6", "c6", "d6", "e6", "f6", "g6", "h6",
+				"a5", "b5", "c5", "d5", "e5", "f5", "g5", "h5",
+				"a4", "b4", "c4", "d4", "e4", "f4", "g4", "h4",
+				"a3", "b3", "c3", "d3", "e3", "f3", "g3", "h3",
+				"a2", "b2", "c2", "d2", "e2", "f2", "g2", "h2",
+				"a1", "b1", "c1", "d1", "e1", "f1", "g1", "h1"
+			};
+			for (int i = 0; i < ints.size(); i++) {
+				map<int, string>::iterator it = intToStringMap.find(ints[i]);
+				if (it != intToStringMap.end()) {
+					string test = it->second;
+					Assert::AreEqual(test, str[i]);
+				}
+			}
 		}
 		TEST_METHOD(TestStringToIntSquare) {
-
+			map<int, string> intToStringMap = precomputtedIntToString();
+			map<string, int> stringToIntMap = precomputtedStringToInt();
+			vector<int> ints = {
+				56, 57, 58, 59, 60, 61, 62, 63,
+				48, 49, 50, 51, 52, 53, 54, 55,
+				40, 41, 42, 43, 44, 45, 46, 47,
+				32, 33, 34, 35, 36, 37, 38, 39,
+				24, 25, 26, 27, 28, 29, 30, 31,
+				16, 17, 18, 19, 20, 21, 22, 23,
+				8, 9, 10, 11, 12, 13, 14, 15,
+				0, 1, 2, 3, 4, 5, 6, 7
+			};
+			vector<string> str = {
+				"a8", "b8", "c8", "d8", "e8", "f8", "g8", "h8",
+				"a7", "b7", "c7", "d7", "e7", "f7", "g7", "h7",
+				"a6", "b6", "c6", "d6", "e6", "f6", "g6", "h6",
+				"a5", "b5", "c5", "d5", "e5", "f5", "g5", "h5",
+				"a4", "b4", "c4", "d4", "e4", "f4", "g4", "h4",
+				"a3", "b3", "c3", "d3", "e3", "f3", "g3", "h3",
+				"a2", "b2", "c2", "d2", "e2", "f2", "g2", "h2",
+				"a1", "b1", "c1", "d1", "e1", "f1", "g1", "h1"
+			};
+			for (int i = 0; i < ints.size(); i++) {
+				map<string, int>::iterator it = stringToIntMap.find(str[i]);
+				if (it != stringToIntMap.end()) {
+					int test = it->second;
+					Assert::AreEqual(test, ints[i]);
+				}
+			}
 		}
 	};
 }
