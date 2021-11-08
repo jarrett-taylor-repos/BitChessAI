@@ -612,7 +612,12 @@ namespace UnitTests
 			Assert::IsFalse(isFound);
 		}
 		TEST_METHOD(TestAddSquare) {
-
+			Board b;
+			b.addSquare(30, king);
+			map<int, char> mapPieces2 = b.getAllPieces();
+			map<int, char>::iterator it;
+			bool isFound = mapPieces2.find(30) != mapPieces2.end();
+			Assert::IsTrue(isFound);
 		}
 		TEST_METHOD(TestMakeMove) {
 
