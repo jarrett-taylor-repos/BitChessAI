@@ -94,21 +94,71 @@ vector<pair<int, int>> Board::getChecks(const char color) {
 }
 
 bool Board::noPiecesBetween(int startSq, int targetSq, int numSquaresAway) {
-    if(abs(startSq-targetSq) < 10 || !isSlidingPiece(squares[startSq]) || numSquaresAway == 0) { //too close to have pieces between OR piece cant pin
+    if(abs(startSq-targetSq) < 10 || numSquaresAway < 2) {
         return true;
     }
-    bool noneBetween = true;
-    int diffIndex = (startSq-targetSq)/numSquaresAway;
-    for(int i = startSq + diffIndex; i < targetSq; i += diffIndex) {
+    int total_diff = targetSq - startSq;
+    int diffIndex;
+    if (total_diff % 7 == 0) { diffIndex = 7; }
+    else if (total_diff % 1 == 0) { diffIndex = 1; }
+    else if (total_diff % 8 == 0) { diffIndex = 8; }
+    else if (total_diff % 9 == 0) { diffIndex = 9; }
+    else {
+        diffIndex = abs(total_diff / numSquaresAway);
+    }
+    int start = (startSq > targetSq) ? targetSq : startSq;
+    int end = (startSq == start) ? targetSq : startSq;
+    for(int i = start + diffIndex; i < end; i += diffIndex) {
         if(!isNone(squares[i])) {
-            noneBetween = false;
+            return false;
         }
     }
-    return noneBetween;
+    return true;
 
 }
 
-void Board::isPiecePinned(int attSq, int pinSq) {
+bool Board::isPiecePinned(int attSq, int pinSq) {
+     //piece is pinned if king is behind piece and 
+    char att = squares[attSq];
+    char pin = squares[pinSq];
+    int kingSq = getKing(moveColor);
+    char king = squares[kingSq];
+    bool nullPiece = isNone(att) || isNone(pin);
+    bool oppositePiece = !isColor(att, pin) && isColor(pin, king) && !isColor(king, att); //test to see if pin and attacker are diff color, test if pin and sking are same color, test if king and attacker are opposite color
+    bool possiblePinner = isSlidingPiece(att);
+    if (nullPiece || !oppositePiece || !possiblePinner) {
+        return false;
+    }
+    int total_diff = attSq - pinSq;
+    int diff; 
+    if (total_diff % 7 == 0) { diff = 7; }
+    else if (total_diff % 1 == 0) { diff = 1; }
+    else if (total_diff % 8 == 0) { diff = 8; }
+    else if(total_diff % 9 == 0) { diff = 9; }
+    else { return false; }
+
+    if (total_diff > 0) { diff *= -1; }
+
+    int testSq = pinSq + diff;
+    bool kingBehindPin = false;
+    int numAwayAtt = abs(total_diff/diff);
+    int pintoKing = (pinSq-kingSq)/diff*-1;
+    while (testSq >= 0 && testSq < 64) {
+        bool kingTester = (testSq == kingSq);
+        if (kingTester) {
+            kingBehindPin = true;
+            break;
+        }
+        testSq += diff;
+    }
+    if (!kingBehindPin) {
+        return false;
+    }
+    bool noneBetween = noPiecesBetween(attSq, pinSq, numAwayAtt) && noPiecesBetween(pinSq, kingSq, pintoKing);
+    if (noneBetween) {
+        return true;
+    }
+    return false;
 
 }
 

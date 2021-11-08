@@ -43,7 +43,7 @@ class Board {
         void generatePawnMoves(int, const char);
         void generateKnightMoves(int, const char);
         void setAttackers(int);
-        void isPiecePinned(int, int);
+        bool isPiecePinned(int, int);
         vector<std::pair<int, int>> getChecks(const char);
         bool noPiecesBetween(int, int, int);
         int getKing(const char);

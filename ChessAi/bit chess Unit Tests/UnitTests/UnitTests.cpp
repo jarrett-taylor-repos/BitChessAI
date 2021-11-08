@@ -629,13 +629,42 @@ namespace UnitTests
 
 		}
 		TEST_METHOD(TestIsPiecePinned) {
+			Board b;
+			string nobetween = "rnbqk1nr/pppp1ppp/8/4p3/1b2P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2 3";
+			//attacker is black bishop is square 25
+			//pinned piece is white pawn on square 11
+			//white king is placed on square 4
+			b.loadFen(nobetween);
+			int attackSq = 25;
+			int pinSq = 11;
+			bool pawn_is_pinned = b.isPiecePinned(25, 11);
+			Assert::IsTrue(pawn_is_pinned);
 
+			string knightBlocks = "rnbqk1nr/1ppp1ppp/8/p3p3/1b2P3/2P2N2/PP1P1PPP/RNBQKB1R w KQkq a6 0 4";
+			b.loadFen(knightBlocks);
+			bool pawn_is_not_pinned = b.isPiecePinned(25, 11);
+			Assert::IsFalse(pawn_is_not_pinned);
 		}
 		TEST_METHOD(TestGetChecks) {
-
+			Board b;
+			b.loadFen();
 		}
 		TEST_METHOD(TestNoPiecesBetween) {
-
+			Board b;
+			string nobetween = "rnbqk1nr/pppp1ppp/8/4p3/1b2P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2 3";
+			//attacker is black bishop is square 25
+			//pinned piece is white pawn on square 11
+			//white king is placed on square 4
+			b.loadFen(nobetween);
+			int attackSq = 25;
+			int pinSq = 11;
+			int numSqAway = 2;
+			bool none = b.noPiecesBetween(attackSq, pinSq, numSqAway); //true?
+			Assert::IsTrue(none);
+			string between = "rnbqk1nr/pppp1ppp/8/4p3/1b2P3/2P2N2/PP1P1PPP/RNBQKB1R b KQkq - 0 3";
+			b.loadFen(between);
+			bool pawnBetween = b.noPiecesBetween(attackSq, pinSq, numSqAway); //false;
+			Assert::IsFalse(pawnBetween);
 		}
 		TEST_METHOD(TestSetMoveColor) {
 			Board b;
