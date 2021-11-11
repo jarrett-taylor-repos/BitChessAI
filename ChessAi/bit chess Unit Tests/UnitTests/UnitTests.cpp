@@ -641,10 +641,9 @@ namespace UnitTests
 		TEST_METHOD(TestSetAttackers) {
 			init();
 			Board b;
-			b.setAttackers();
 			multimap<int, Attacker> att = b.getAttackers();//should be size 34
 			int length = att.size();
-			Assert::AreEqual(34, length);
+			Assert::AreEqual(38, length);
 		}
 		TEST_METHOD(TestGenerateMoves) {
 

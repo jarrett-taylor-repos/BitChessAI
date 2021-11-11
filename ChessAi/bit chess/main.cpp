@@ -14,4 +14,5 @@ int main() {
             }
         }
     }
+    cout << atts.size();
 }
