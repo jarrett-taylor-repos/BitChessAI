@@ -1,19 +1,94 @@
 #include "board.h"
 #include "helper.cpp"
+#include <windows.h>
+#include <stdlib.h>
+
 
 void Board::setAttackers() {
-    multimap<int, precomputedAttackerData> precomputtedPossibleAttackers = getPossibleAttacker(moveColor);
     for(int pieceIndex = 0; pieceIndex < allPieces.size(); pieceIndex++) {
-        int square = allPieces[pieceIndex];
-        char piece = squares[square];
-        if(!isColor(piece, moveColor)) {
-            //set attackling squares
-        
-            
+        int piece = allPieces[pieceIndex];
+        if(!isColor(piece, moveColor) && !isNone(piece)) {
+            //set attacking squares
+            //done with multimap precomputtedPossibleAttackers
+            if (isSlidingPiece(piece)) {
+                slidingAttackers(pieceIndex, piece);
+            }
+            else {
+                pieceAttacker(pieceIndex, piece);
+            }
         }
     }
-    //for all squares that have black pieces on startsq
-    //get all precompuuted attackers for squares where the startSq and piece are the same
+    return;
+}
+
+void Board::slidingAttackers(int startSq, char piece) {
+    int startDirIndex = isBishop(piece) ? 4 : 0;
+    int endDirIndex = isRook(piece) ? 4 : 8;
+
+    for (int directionIndex = startDirIndex; directionIndex < endDirIndex; directionIndex++) {
+        for (int n = 0; n < numSqauresToEdge[startSq][directionIndex]; n++) {
+            int targetSq = startSq + directionOffSets[directionIndex] * (n + 1);
+            const char pieceOnTargetSq = squares[targetSq];
+
+            if (isColor(piece, pieceOnTargetSq)) {
+                Attacker add(startSq, targetSq, piece);
+                addAttacker(add, startSq);
+                break;
+            }
+            Attacker add(startSq, targetSq, piece);
+            addAttacker(add, startSq);
+            if (!isColor(pieceOnTargetSq, moveColor) && !isKing(pieceOnTargetSq)) {
+                break;
+            }
+        }
+    }
+    return;
+}
+
+void Board::pieceAttacker(int startSq, char piece) {
+    if (isKing(piece)) {
+        int size = sizeof(kingMoves[startSq])/sizeof(int);
+        for (int i = 0; i < size; i++) {
+            int targetSquare = kingMoves[startSq][i];
+            if (targetSquare != startSq) {//if is not check and target square does not hold piece of same color
+                Attacker add(startSq, targetSquare, piece);
+                addAttacker(add, startSq);
+            }
+        }
+    }
+    else if (isPawn(piece)) {
+        if (!isWhite(moveColor)) {
+            int size = sizeof(whiteAttackingPawnMoves[startSq]) / sizeof(int);
+            for (int i = 0; i < size; i++) {
+                int targetSquare = whiteAttackingPawnMoves[startSq][i];
+                if (targetSquare != startSq) {//if is not pinned or stays between pin, need enpassant and double pawn move and capture and promotion logic here
+                    Attacker add(startSq, targetSquare, piece);
+                    addAttacker(add, startSq);
+                }
+            }
+        }
+        else {
+            int size = sizeof(blackAttackingPawnMoves[startSq]) / sizeof(int);
+            for (int i = 0; i < size; i++) {
+                int targetSquare = blackAttackingPawnMoves[startSq][i];
+                if (targetSquare != startSq) {//if is not pinned or stays between pin, need enpassant and double pawn move and capture and promotion logic here
+                    Attacker add(startSq, targetSquare, piece);
+                    addAttacker(add, startSq);
+                }
+            }
+        }
+    }
+    else if (isKnight(piece)) {
+        int size = sizeof(knightMoves[startSq]) / sizeof(int);
+        for (int i = 0; i < size; i++) {
+            int targetSquare = knightMoves[startSq][i];
+            if (targetSquare != startSq) {//if is not check and target square does not hold piece of same color
+                Attacker add(startSq, targetSquare, piece);
+                addAttacker(add, startSq);
+            }
+        }
+    }
+    return;
 }
 
 void Board::generateMoves() {
@@ -47,6 +122,7 @@ void Board::generateSlidingMoves(int startSq, const char piece) {
             }
         }
     }
+    return;
 }
 void Board::generateKingMoves(int startSq, const char piece) {
     int size = sizeof(kingMoves[startSq])/sizeof(int);
@@ -56,6 +132,7 @@ void Board::generateKingMoves(int startSq, const char piece) {
             moves.push_back(Move(startSq, targetSquare));
         }
     }
+    return;
 }
 void Board::generatePawnMoves(int startSq, const char piece) {
     if(isWhite(piece)) {
@@ -75,6 +152,7 @@ void Board::generatePawnMoves(int startSq, const char piece) {
             }
         }
     }
+    return;
 }
 void Board::generateKnightMoves(int startSq, const char piece) {
     int size = sizeof(knightMoves[startSq])/sizeof(int);
@@ -84,6 +162,7 @@ void Board::generateKnightMoves(int startSq, const char piece) {
             moves.push_back(Move(startSq, targetSquare));
         }
     }
+    return;
 }
 
 
@@ -115,6 +194,31 @@ bool Board::noPiecesBetween(int startSq, int targetSq, int numSquaresAway) {
     }
     return true;
 
+}
+
+bool Board::noPiecesBetweenNotKing(int startSq, int targetSq, int numSquaresAway) {
+    if (abs(startSq - targetSq) < 10 || numSquaresAway < 2) {
+        return true;
+    }
+    int total_diff = targetSq - startSq;
+    int diffIndex;
+    if (total_diff % 7 == 0) { diffIndex = 7; }
+    else if (total_diff % 1 == 0) { diffIndex = 1; }
+    else if (total_diff % 8 == 0) { diffIndex = 8; }
+    else if (total_diff % 9 == 0) { diffIndex = 9; }
+    else {
+        diffIndex = abs(total_diff / numSquaresAway);
+    }
+    int start = (startSq > targetSq) ? targetSq : startSq;
+    int end = (startSq == start) ? targetSq : startSq;
+    for (int i = start + diffIndex; i < end; i += diffIndex) {
+        char oppColor = (moveColor == white) ? black : white;
+        int testIdx = getKing(oppColor);
+        if (!isNone(squares[i])&&testIdx!=i) {
+            return false;
+        }
+    }
+    return true;
 }
 
 bool Board::isPiecePinned(int attSq, int pinSq) {
@@ -173,7 +277,7 @@ int Board::getKing(const char color) {
 }
 
 multimap<int, precomputedAttackerData> Board::getPossibleAttacker(char color) {
-    if(color == white) {
+    if(isWhite(color)) {
         return attackersOnWhite;
     } else {
         return attackersOnBlack;
@@ -262,6 +366,7 @@ void Board::loadFen(string f="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq
             }
         }
     }
+    setAttackers();
     return;
 }
 
@@ -283,6 +388,16 @@ void Board::addSquare(int sqaureIdx, char piece) {
     pair<int, char> addPair = make_pair(sqaureIdx, piece);
     allPieces.insert(addPair);
     squares[sqaureIdx] = piece;
+}
+
+void Board::addAttacker(Attacker a, int startSq) {
+    attackers.insert(make_pair(startSq, a));
+}
+void Board::clearAttackers() {
+    attackers.clear();
+}
+multimap<int, Attacker> Board::getAttackers() {
+    return attackers;
 }
 
 void Board::print() {
@@ -371,4 +486,34 @@ char* Board::getSquares() {
 
 map<int, char> Board::getAllPieces() {
     return allPieces;
+}
+
+void Board::setInit() {
+    init();
+}
+
+void Board::printAttackers() {
+    int color = 12;//red
+    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+    SetConsoleTextAttribute(hConsole, color);
+    for (int file = 7; file >= 0; file--) {
+        for (int rank = 0; rank < 8; rank++) {
+            int sqIndex = file * 8 + rank;
+            const char piece = squares[sqIndex];
+            multimap<int, Attacker>::iterator it;
+            it = attackers.find(sqIndex);
+            if (it != attackers.end()) {
+                int color = 12;//red
+                SetConsoleTextAttribute(hConsole, 12);
+            }
+            else {
+                int color = 15;//white
+                SetConsoleTextAttribute(hConsole, 15);
+            }
+            cout << pieceToString(piece) << " ";
+        }
+        SetConsoleTextAttribute(hConsole, 15);
+        cout << endl;
+    }
+    SetConsoleTextAttribute(hConsole, 15);
 }

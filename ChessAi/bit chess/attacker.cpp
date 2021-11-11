@@ -10,6 +10,13 @@ Attacker& Attacker::operator=(const Attacker&other) {
     piece = other.piece;
     return *this;
 }
+Attacker Attacker::operator()(int s, int t, char p) {
+    Attacker att;
+    att.startSq = s;
+    att.targetSq = t;
+    att.piece = p;
+    return att;
+}
 int Attacker::getStartSq() { return startSq; }
 int Attacker::getTargetSq(){ return targetSq; }
 char Attacker::getPiece(){ return piece; }

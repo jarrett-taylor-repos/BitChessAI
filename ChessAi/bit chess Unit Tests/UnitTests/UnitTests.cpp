@@ -7,8 +7,7 @@ using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
 namespace UnitTests
 {
-	TEST_CLASS(PieceUnitTests)
-	{
+	TEST_CLASS(PieceUnitTests) {
 	public:
 		TEST_METHOD(ValueIsNone)
 		{
@@ -327,6 +326,24 @@ namespace UnitTests
 			bool test5 = isColor(black, BlackPawn());
 			Assert::IsTrue(test5);
 		}
+		TEST_METHOD(TestIsPiece) {
+			vector<char> pieces = {
+				None(),
+				WhitePawn(), WhiteKnight(), WhiteBishop(), WhiteRook(), WhiteQueen(), WhiteKing(),
+				BlackPawn(), BlackKnight(), BlackBishop(), BlackRook(), BlackQueen(), BlackKing(),
+				pawn, knight, bishop, rook, queen, king
+			};
+			bool test1 = isPiece(pawn, WhitePawn());
+			Assert::IsTrue(test1);
+			bool test2 = isPiece(pawn, BlackPawn());
+			Assert::IsTrue(test2);
+			bool test3 = isPiece(none, WhitePawn());
+			Assert::IsFalse(test3);
+			bool test4 = isPiece(queen, BlackRook());
+			Assert::IsFalse(test4);
+			bool test5 = isPiece(WhiteRook(), BlackRook());
+			Assert::IsTrue(test5);
+		}
 		TEST_METHOD(TestIsSlidingPiece) {
 			vector<char> pieces = {
 				None(),
@@ -356,7 +373,7 @@ namespace UnitTests
 		}
 		TEST_METHOD(TestMuiltMapAttackers)
 		{
-			multimap<int, precomputedAttackerData> attackersOnWhite = precomputtedPossibleAttackers(white);;
+			init();
 			multimap<int, precomputedAttackerData>::iterator itr;
 			for (itr = attackersOnWhite.begin(); itr != attackersOnWhite.end(); ++itr) {
 				int startSq = itr->first;
@@ -378,8 +395,7 @@ namespace UnitTests
 			}
 		}
 		TEST_METHOD(TestNotationMap) {
-			map<int, string> intToStringMap = precomputtedIntToString();
-			map<string, int> stringToIntMap = precomputtedStringToInt();
+			init();
 			for (int i = 0; i < 64; i++) {
 				multimap<int, string>::iterator it = intToStringMap.find(i);
 				string notation = it->second;
@@ -622,8 +638,13 @@ namespace UnitTests
 		TEST_METHOD(TestMakeMove) {
 
 		}
-		TEST_METHOD(TestSetAttckers) {
-
+		TEST_METHOD(TestSetAttackers) {
+			init();
+			Board b;
+			b.setAttackers();
+			multimap<int, Attacker> att = b.getAttackers();//should be size 34
+			int length = att.size();
+			Assert::AreEqual(34, length);
 		}
 		TEST_METHOD(TestGenerateMoves) {
 
@@ -693,8 +714,7 @@ namespace UnitTests
 			}
 		}
 		TEST_METHOD(TestIntToStringNotation) {
-			map<int, string> intToStringMap = precomputtedIntToString();
-			map<string, int> stringToIntMap = precomputtedStringToInt();
+			init();
 			vector<int> ints = {
 				56, 57, 58, 59, 60, 61, 62, 63,
 				48, 49, 50, 51, 52, 53, 54, 55,
@@ -724,8 +744,7 @@ namespace UnitTests
 			}
 		}
 		TEST_METHOD(TestStringToIntSquare) {
-			map<int, string> intToStringMap = precomputtedIntToString();
-			map<string, int> stringToIntMap = precomputtedStringToInt();
+			init();
 			vector<int> ints = {
 				56, 57, 58, 59, 60, 61, 62, 63,
 				48, 49, 50, 51, 52, 53, 54, 55,

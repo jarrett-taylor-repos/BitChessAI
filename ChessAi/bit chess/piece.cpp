@@ -1,21 +1,23 @@
-#include "precomputedAttackerData.cpp"
+#include "piece.h"
 #include <algorithm>
 #include <vector>
 #include <map>
 #include <string>
 using namespace std;
 
+int directionOffSets[8] = {8, -8, -1, 1, 7, -7, 9, -9};
+int knightOffsets[8] = {6, 15, 17, 10, -6, -15, -17, -10}; //start at 2 left and up 1 then clockwise
+int whitePawnOffsets[4] = {8, 16, 7, 9};
+int blackPawnOffsets[4] = {-8, -16, -9, -7};
+int whitePawnAttckingOffsets[2] = {7, 9}; //left, right
+int blackPawnAttckingOffsets[2] = {-9, -7}; //left, right
 
-vector<int> directionOffSets = {8, -8, -1, 1, 7, -7, 9, -9};
-vector<int> knightOffsets = {6, 15, 17, 10, -6, -25, -17, -10};
-vector<int> whitePawnOffsets = {8, 16, 7, 9};
-vector<int> blackPawnOffsets = {-8, -16, -7, -9};
-vector<int> whitePawnAttckingOffsets = {7, 9};
-vector<int> blackPawnAttckingOffsets = {-9, -7};
 int numSqauresToEdge[64][8];
 int knightMoves[64][8];
 int blackPawnMoves[64][4];
 int whitePawnMoves[64][4];
+int blackAttackingPawnMoves[64][2];
+int whiteAttackingPawnMoves[64][2];
 int kingMoves[64][8];
 multimap<int, precomputedAttackerData> attackersOnWhite;
 multimap<int, precomputedAttackerData> attackersOnBlack;
@@ -64,6 +66,7 @@ bool isPawn(const char p) { return (getPieceValue(p) == 0b00001); }
 bool isNone(const char p) { return (p == 0b0); }
 bool isColor(const char a, const char b) { return (a >> 3) == (b >> 3); }
 bool isSlidingPiece(const char p) { return (isRook(p) || isBishop(p) || isQueen(p)); }
+bool isPiece(const char a, const char b) { return (getPieceValue(a) == getPieceValue(b)); }
 
 
 //calulate moves potentials
@@ -91,136 +94,71 @@ void precomputtedMoveData() {
             }
 
             //knights
+            bool possibleKnight[8] = {
+                (numNorth >= 1) && (numWest >= 2),
+                (numNorth >= 2) && (numWest >= 1),
+                (numNorth >= 2) && (numEast >= 1),
+                (numNorth >= 1) && (numEast >= 2),
+                (numSouth >= 1) && (numEast >= 2),
+                (numSouth >= 2) && (numEast >= 1),
+                (numSouth >= 2) && (numWest >= 1),
+                (numSouth >= 1) && (numWest >= 2),
+            };
             for(int i=0; i < 8; i++) {
-                knightMoves[sqIndex][i] = sqIndex + knightOffsets[i];
+                int addValue = (knightOffsets[i]*possibleKnight[i]);
+                knightMoves[sqIndex][i] = sqIndex + addValue;
             }
 
             //kings
+            bool possibleKing[8] = {
+                (numNorth >= 1),
+                (numSouth >= 1),
+                (numWest >= 1),
+                (numEast >= 1),
+                (numNorth >= 1) && (numWest >=1),
+                (numSouth >= 1) && (numEast >= 1),
+                (numNorth >= 1) && (numEast >= 1),
+                (numSouth >= 1) && (numWest >= 1),
+            };
             for(int i=0; i < 8; i++) {
-                kingMoves[sqIndex][i] = sqIndex + directionOffSets[i];
+                kingMoves[sqIndex][i] = sqIndex + (directionOffSets[i]*possibleKing[i]);
             }
 
             //white pawns
-            for(int i=0; i < 8; i++) {
-                whitePawnMoves[sqIndex][i] = sqIndex + whitePawnOffsets[i];
+            bool possibleWhitePawn[4] = {
+                (numNorth >= 1),
+                (numNorth >= 2) && (sqIndex < 16) && (sqIndex > 7),
+                (numNorth >= 1) && (numWest >= 1),
+                (numNorth >= 1) && (numEast >= 1)
+            };
+            for(int i=0; i < 4; i++) {
+                int addValue = (whitePawnOffsets[i]*possibleWhitePawn[i]);
+                whitePawnMoves[sqIndex][i] = sqIndex + addValue;
+                if (i > 1) {
+                    whiteAttackingPawnMoves[sqIndex][i-2] = sqIndex + addValue;
+                }
             }
 
             //black pawns
-            for(int i=0; i < 8; i++) {
-                blackPawnMoves[sqIndex][i] = sqIndex + blackPawnOffsets[i];
+            bool possibleBlackPawn[4] = {
+               (numSouth >= 1),
+               (numSouth >= 2) && (sqIndex < 56) && (sqIndex > 47),
+               (numSouth >= 1) && (numWest >= 1),
+               (numSouth >= 1) && (numEast >= 1)
+            };
+            for(int i=0; i < 4; i++) {
+                int addValue = (blackPawnOffsets[i]*possibleBlackPawn[i]);
+                blackPawnMoves[sqIndex][i] = sqIndex + addValue;
+                if (i > 1) {
+                    blackAttackingPawnMoves[sqIndex][i-2] = sqIndex + addValue;
+                }
             }
         }
     }
     return;
 }
 
-multimap<int, precomputedAttackerData> precomputtedPawnAttackers(const char color, int startSq, vector<int> offsets, int size, const char piece) {
-    multimap<int, precomputedAttackerData> temp;
-    if(isWhite(color)) {
-        for(int whitePawnIndex = 0; whitePawnIndex < offsets.size(); whitePawnIndex++) {
-            int targetSQ = startSq + offsets[whitePawnIndex];
-            if(targetSQ >= 0 && targetSQ < 64) {
-                //add possible pawn attacker, add to black king
-                precomputedAttackerData data(targetSQ, piece, false, 0);
-                temp.insert(make_pair(startSq, data));
-            }
-        }
-        //attackersOnWhite.insert(temp.begin(), temp.end());
-    } else {
-        for(int blackPawnIndex = 0; blackPawnIndex < offsets.size(); blackPawnIndex++) {
-            int targetSQ = startSq + offsets[blackPawnIndex];
-            if(targetSQ >= 0 && targetSQ < 64) {
-                //add possible pawn attacker, add to white king
-                precomputedAttackerData data(targetSQ, piece, false, 0);
-                temp.insert(make_pair(startSq, data));
-            }
-        }
-        //attackersOnBlack.insert(temp.begin(), temp.end());
-    }
-    return temp;
-}
-
-multimap<int, precomputedAttackerData> precomputedAttackersHelper(int startSq, vector<int> offsets, int size, const char piece) {
-    multimap<int, precomputedAttackerData> temp;
-    for(int index = 0; index < offsets.size(); index++) {
-        int targetSQ = startSq + offsets[index];
-        if(targetSQ >= 0 && targetSQ < 64) {
-            precomputedAttackerData data(targetSQ, piece, false, 0);
-            pair<int, precomputedAttackerData> addPair = make_pair(startSq, data);
-            temp.insert(addPair);
-        }
-    }
-    // attackersOnWhite.insert(temp.begin(), temp.end());
-    // attackersOnBlack.insert(temp.begin(), temp.end());
-    return temp;
-}
-
-multimap<int, precomputedAttackerData> precomputtedSlidingPieces(int startSq, const char piece) {
-    int startDirIndex = isBishop(piece) ? 4 : 0;
-    int endDirIndex = isRook(piece) ? 4 : 8; 
-
-    multimap<int, precomputedAttackerData> temp;
-    for(int directionIndex = startDirIndex; directionIndex < endDirIndex; directionIndex++) {
-        for(int n = 0; n < numSqauresToEdge[startSq][directionIndex]; n++) {
-            int targetSq = startSq + directionOffSets[directionIndex] * (n+1);
-            if(abs(targetSq-startSq) < 10) {
-                precomputedAttackerData data(targetSq, piece, false, (n+1));
-                temp.insert(make_pair(startSq, data));
-            } else {
-                precomputedAttackerData data(targetSq, piece, true, (n+1));
-                temp.insert(make_pair(startSq, data));
-            }
-        }
-    }
-    // attackersOnWhite.insert(temp.begin(), temp.end());
-    // attackersOnBlack.insert(temp.begin(), temp.end());
-    return temp;
-}
-
-multimap<int, precomputedAttackerData> precomputtedPossibleAttackers(const char color) {
-    multimap<int, precomputedAttackerData> temp;
-    multimap<int, precomputedAttackerData> returnMap;
-    vector<int> whitePawnAttckingOffsets = {7, 9};
-    vector<int> blackPawnAttckingOffsets = {-9, -7};
-
-    for(int startSq = 0; startSq < 64; startSq++) {
-        //need to get knights attacking squares 
-        temp = precomputedAttackersHelper(startSq, knightOffsets, sizeof(knightOffsets)/sizeof(const int), knight);
-        returnMap.insert(temp.begin(), temp.end());
-        temp.clear();
-        //need to get pawns attacking sqaures
-        if(color == white) {
-            temp = precomputtedPawnAttackers(white, startSq, whitePawnAttckingOffsets, sizeof(whitePawnAttckingOffsets)/sizeof(const int), pawn);
-            returnMap.insert(temp.begin(), temp.end());
-            temp.clear();
-        } else {
-            temp = precomputtedPawnAttackers(black, startSq, blackPawnAttckingOffsets, sizeof(blackPawnAttckingOffsets)/sizeof(const int), pawn);
-            returnMap.insert(temp.begin(), temp.end());
-            temp.clear();
-        }
-        
-        //need to get king attacking sqaures
-        temp = precomputedAttackersHelper(startSq, directionOffSets, sizeof(directionOffSets)/sizeof(const int), king);
-        returnMap.insert(temp.begin(), temp.end());
-        temp.clear();
-        //need to get rook, bishop, queen attacking squares
-        temp = precomputtedSlidingPieces(startSq, rook);
-        returnMap.insert(temp.begin(), temp.end());
-        temp.clear();
-
-        temp = precomputtedSlidingPieces(startSq, bishop);
-        returnMap.insert(temp.begin(), temp.end());
-        temp.clear();
-
-        temp = precomputtedSlidingPieces(startSq, queen);
-        returnMap.insert(temp.begin(), temp.end());
-        temp.clear();
-    }
-    return returnMap;
-}
-
-map<int, string> precomputtedIntToString() {
-    map<int, string> temp;
+void precomputtedIntToString() {
     for(int file = 0; file < 8; file++) {
         for(int rank = 0; rank < 8; rank++) { 
             int startSq = file*8 + rank;
@@ -239,14 +177,13 @@ map<int, string> precomputtedIntToString() {
             }
             int intRow = (startSq-remainder)/8 + 1;
             s += to_string(intRow);
-            temp.insert(make_pair(startSq, s));
+            intToStringMap.insert(make_pair(startSq, s));
         }
     }
-    return temp;
+    return;
 }
 
-map<string, int> precomputtedStringToInt() {
-    map<string, int> temp;
+void precomputtedStringToInt() {
     for(int file = 0; file < 8; file++) {
         for(int rank = 0; rank < 8; rank++) { 
             int startSq = file*8 + rank;
@@ -265,17 +202,16 @@ map<string, int> precomputtedStringToInt() {
             }
             int intRow = (startSq-remainder)/8 + 1;
             s += to_string(intRow);
-            temp.insert(make_pair(s, startSq));
+            stringToIntMap.insert(make_pair(s, startSq));
         }
     }
-    return temp;
+    return;
 }
 
 void init() {//load on start of program
     precomputtedMoveData();
-    attackersOnWhite = precomputtedPossibleAttackers(white);
-    attackersOnBlack = precomputtedPossibleAttackers(black);
-    intToStringMap = precomputtedIntToString();
-    stringToIntMap = precomputtedStringToInt();
+    //precomputtedPossibleAttackers();
+    precomputtedIntToString();
+    precomputtedStringToInt();
     cout << "INIT complete" << endl;
 }

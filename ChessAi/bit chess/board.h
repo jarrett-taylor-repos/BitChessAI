@@ -35,20 +35,24 @@ class Board {
         void loadFen(std::string);
         void clearSquare(int);
         void addSquare(int, char);
+        void addAttacker(Attacker, int);
+        void clearAttackers();
+        multimap<int, Attacker> getAttackers();
         bool makeMove(std::string, std::string);
         void setAttackers();
+        void slidingAttackers(int, char);
+        void pieceAttacker(int startSq, char piece);
         void generateMoves();
         void generateSlidingMoves(int, const char);
         void generateKingMoves(int, const char);
         void generatePawnMoves(int, const char);
         void generateKnightMoves(int, const char);
-        void setAttackers(int);
         bool isPiecePinned(int, int);
         vector<std::pair<int, int>> getChecks(const char);
         bool noPiecesBetween(int, int, int);
+        bool noPiecesBetweenNotKing(int, int, int);
         int getKing(const char);
         multimap<int, precomputedAttackerData> getPossibleAttacker(char);
-        void print();
         char getMoveColor();
         void setMoveColor();
         std::string pieceToString(const char);
@@ -56,6 +60,9 @@ class Board {
         int stringToIntSquare(std::string);
         char* getSquares();
         map<int, char> getAllPieces();
+        void setInit();
+        void print();
+        void printAttackers();
 };
 
 
