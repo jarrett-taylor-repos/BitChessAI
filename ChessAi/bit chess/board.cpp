@@ -401,17 +401,6 @@ multimap<int, Attacker> Board::getAttackers() {
     return attackers;
 }
 
-void Board::print() {
-    for(int file = 7; file >= 0; file--) {
-        for(int rank = 0; rank < 8; rank++) {
-            int value = file*8 + rank;
-            const char piece = squares[value];
-            cout << pieceToString(piece) << " ";
-        }
-        cout << endl;
-    }
-}
-
 char Board::getMoveColor() {
     return moveColor;
 }
@@ -493,28 +482,50 @@ void Board::setInit() {
     init();
 }
 
+void Board::print() {
+    for (int file = 7; file >= 0; file--) {
+        for (int rank = 0; rank < 8; rank++) {
+            int value = file * 8 + rank;
+            const char piece = squares[value];
+            cout << pieceToString(piece) << " ";
+        }
+        cout << endl;
+    }
+}
+
 void Board::printAttackers() {
-    int color = 12;//red
-    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-    SetConsoleTextAttribute(hConsole, color);
+    vector<int> attackedSquares;
     for (int file = 7; file >= 0; file--) {
         for (int rank = 0; rank < 8; rank++) {
             int sqIndex = file * 8 + rank;
             const char piece = squares[sqIndex];
-            multimap<int, Attacker>::iterator it;
-            it = attackers.find(sqIndex);
-            if (it != attackers.end()) {
-                int color = 12;//red
+
+            for (auto itr = attackers.begin(); itr != attackers.end(); itr++) {
+                if (itr->first == sqIndex) {
+                    int attackSq = itr->second.getTargetSq();
+                    attackedSquares.push_back(attackSq);
+                }
+            }
+        }
+    }
+    cout << "attackers size " << attackedSquares.size() << endl;
+    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+    for (int file = 7; file >= 0; file--) {
+        for (int rank = 0; rank < 8; rank++) {
+            int sqIndex = file * 8 + rank;
+            const char piece = squares[sqIndex];
+            if (count(attackedSquares.begin(), attackedSquares.end(), sqIndex)) {
                 SetConsoleTextAttribute(hConsole, 12);
+                cout << pieceToString(piece) << " ";
             }
             else {
-                int color = 15;//white
                 SetConsoleTextAttribute(hConsole, 15);
+                cout << pieceToString(piece) << " ";
             }
-            cout << pieceToString(piece) << " ";
         }
         SetConsoleTextAttribute(hConsole, 15);
         cout << endl;
     }
     SetConsoleTextAttribute(hConsole, 15);
+    return;
 }
