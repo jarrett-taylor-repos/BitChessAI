@@ -313,13 +313,14 @@ bool Board::makeMove(string start, string target) {
 
 //CONSTRUCTORS AND OPERATORS
 Board::Board(string s="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1") {
-    for(int i = 0; i < 64; i++) {
+    for (int i = 0; i < 64; i++) {
         squares[i] = none;
     }
     loadFen(s);
 }
 
 void Board::loadFen(string f="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1") {
+    clearAttackers();
     map<char, const char> piece_map = {
         {'k', BlackKing()},
         {'q', BlackQueen()},
