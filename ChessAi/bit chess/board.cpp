@@ -91,7 +91,7 @@ void Board::pieceAttacker(int startSq, char piece) {
 
 
 void Board::generateMoves() {
-    vector<pair<int, int>> checks = getChecks(moveColor);
+    vector<pair<int, int>> checks = getChecks();
     
     if(checks.size() == 2) {
         //return only king moves that are not check
@@ -165,9 +165,18 @@ void Board::generateKnightMoves(int startSq, const char piece) {
 }
 
 
-vector<pair<int, int>> Board::getChecks(const char color) {
-    int king = getKing(color);
+vector<pair<int, int>> Board::getChecks() {
+    int king = getKing(moveColor);
     vector<pair<int, int>> checks;
+    for (auto it = attackers.begin(); it != attackers.end(); ++it) {
+        Attacker currAtt = it->second;
+        int startSq = it->first;
+        int targetSq = currAtt.getTargetSq();
+        if(targetSq == king) {
+            pair<int, int> startToTargetSq = make_pair(startSq, targetSq);
+            checks.push_back(startToTargetSq);
+        }
+    }
     return checks;
 }
 
@@ -504,7 +513,7 @@ void Board::printAttackers() {
             }
         }
     }
-    cout << "attackers size " << attackedSquares.size() << endl;
+    //cout << "attackers size " << attackedSquares.size() << endl;
     HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
     for (int file = 7; file >= 0; file--) {
         for (int rank = 0; rank < 8; rank++) {

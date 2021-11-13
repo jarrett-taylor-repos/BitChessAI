@@ -671,8 +671,30 @@ namespace UnitTests
 			Assert::IsFalse(pawn_is_not_pinned);
 		}
 		TEST_METHOD(TestGetChecks) {
+			init();
 			Board b;
-			b.loadFen();
+			vector<pair<int, int>> checks = b.getChecks();
+			int size = checks.size();
+			Assert::AreEqual(0, size);
+
+		}
+		TEST_METHOD(TestChecks2) {
+			init();
+			Board b;
+			string test2 = "4k3/4r3/8/8/8/4K3/7R/8 w - - 0 1";
+			b.loadFen(test2);
+			vector<pair<int, int>> checks = b.getChecks();
+			int size = checks.size();
+			Assert::AreEqual(1, size);;
+		}
+		TEST_METHOD(TestChecks3) {
+			init();
+			Board b;
+			string test3 = "rnbqkb2/pppppppp/8/4r3/2B5/5n2/PPPP1PPP/RNBQK1NR w KQq - 0 1";
+			b.loadFen(test3);
+			vector<pair<int, int>> checks = b.getChecks();
+			int size = checks.size();
+			Assert::AreEqual(2, size);
 		}
 		TEST_METHOD(TestNoPiecesBetween) {
 			Board b;
