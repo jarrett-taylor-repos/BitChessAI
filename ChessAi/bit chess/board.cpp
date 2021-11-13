@@ -20,7 +20,6 @@ void Board::setAttackers() {
     }
     return;
 }
-
 void Board::slidingAttackers(int startSq, char piece) {
     int startDirIndex = isBishop(piece) ? 4 : 0;
     int endDirIndex = isRook(piece) ? 4 : 8;
@@ -37,14 +36,13 @@ void Board::slidingAttackers(int startSq, char piece) {
             }
             Attacker add(startSq, targetSq, piece);
             addAttacker(add, startSq);
-            if (!isColor(pieceOnTargetSq, moveColor) && !isKing(pieceOnTargetSq)) {
+            if (!isColor(pieceOnTargetSq, moveColor) && !isKing(pieceOnTargetSq) && !isNone(pieceOnTargetSq)) {
                 break;
             }
         }
     }
     return;
 }
-
 void Board::pieceAttacker(int startSq, char piece) {
     if (isKing(piece)) {
         int size = sizeof(kingMoves[startSq])/sizeof(int);
@@ -91,6 +89,7 @@ void Board::pieceAttacker(int startSq, char piece) {
     return;
 }
 
+
 void Board::generateMoves() {
     vector<pair<int, int>> checks = getChecks(moveColor);
     
@@ -117,7 +116,7 @@ void Board::generateSlidingMoves(int startSq, const char piece) {
                 break;
             }
             moves.push_back(Move(startSq, targetSq));
-            if(!isColor(pieceOnTargetSq, moveColor)) {
+            if(!isColor(pieceOnTargetSq, moveColor) && !isNone(pieceOnTargetSq)) {
                 break;
             }
         }
@@ -195,7 +194,6 @@ bool Board::noPiecesBetween(int startSq, int targetSq, int numSquaresAway) {
     return true;
 
 }
-
 bool Board::noPiecesBetweenNotKing(int startSq, int targetSq, int numSquaresAway) {
     if (abs(startSq - targetSq) < 10 || numSquaresAway < 2) {
         return true;
@@ -220,7 +218,6 @@ bool Board::noPiecesBetweenNotKing(int startSq, int targetSq, int numSquaresAway
     }
     return true;
 }
-
 bool Board::isPiecePinned(int attSq, int pinSq) {
      //piece is pinned if king is behind piece and 
     char att = squares[attSq];
@@ -276,15 +273,6 @@ int Board::getKing(const char color) {
     return -1;
 }
 
-multimap<int, precomputedAttackerData> Board::getPossibleAttacker(char color) {
-    if(isWhite(color)) {
-        return attackersOnWhite;
-    } else {
-        return attackersOnBlack;
-    }
-}
-
-
 bool Board::makeMove(string start, string target) {
     int startSq = stringToIntSquare(start);
     int targetSq = stringToIntSquare(target);
@@ -320,7 +308,9 @@ Board::Board(string s="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 }
 
 void Board::loadFen(string f="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1") {
+    clearSquares();
     clearAttackers();
+    clearAllPieces();
     map<char, const char> piece_map = {
         {'k', BlackKing()},
         {'q', BlackQueen()},
@@ -400,6 +390,14 @@ void Board::clearAttackers() {
 multimap<int, Attacker> Board::getAttackers() {
     return attackers;
 }
+char* Board::getSquares() {
+    return squares;
+}
+void Board::clearSquares() {
+    for(int i = 0; i < 64; i++) {
+        squares[i] = none;
+    }
+}
 
 char Board::getMoveColor() {
     return moveColor;
@@ -469,13 +467,11 @@ int Board::stringToIntSquare(string notation) {
     }
     return -1;
 }
-
-char* Board::getSquares() {
-    return squares;
-}
-
 map<int, char> Board::getAllPieces() {
     return allPieces;
+}
+void Board::clearAllPieces() {
+    allPieces.clear();
 }
 
 void Board::setInit() {

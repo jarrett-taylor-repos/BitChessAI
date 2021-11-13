@@ -37,6 +37,7 @@ class Board {
         void addSquare(int, char);
         void addAttacker(Attacker, int);
         void clearAttackers();
+        void clearSquares();
         multimap<int, Attacker> getAttackers();
         bool makeMove(std::string, std::string);
         void setAttackers();
@@ -52,7 +53,6 @@ class Board {
         bool noPiecesBetween(int, int, int);
         bool noPiecesBetweenNotKing(int, int, int);
         int getKing(const char);
-        multimap<int, precomputedAttackerData> getPossibleAttacker(char);
         char getMoveColor();
         void setMoveColor();
         std::string pieceToString(const char);
@@ -60,6 +60,7 @@ class Board {
         int stringToIntSquare(std::string);
         char* getSquares();
         map<int, char> getAllPieces();
+        void clearAllPieces();
         void setInit();
         void print();
         void printAttackers();

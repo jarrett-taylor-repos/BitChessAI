@@ -644,8 +644,11 @@ namespace UnitTests
 			multimap<int, Attacker> att = b.getAttackers();//should be size 34
 			int length = att.size();
 			Assert::AreEqual(38, length);
-			string test2 = "";
+			string test2 = "4k3/4r3/8/8/8/4K3/7R/8 w - - 0 1";
 			b.loadFen(test2);
+			att = b.getAttackers();//should be size 34
+			length = att.size();
+			Assert::AreEqual(19, length);
 		}
 		TEST_METHOD(TestGenerateMoves) {
 
