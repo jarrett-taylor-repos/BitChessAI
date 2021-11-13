@@ -1,9 +1,10 @@
 //#include "Board.cpp"
 #include "zobrist.cpp"
-#include <direct.h>
+//#include <direct.h>
 #include <sstream>
 #include <bitset>
 //#include <ofstream>
+
 
 int findmaterial(string fen) {
     vector<string> fenn = split(fen, " ");
@@ -79,7 +80,7 @@ pair<Notation, Notation> findbookmove(Board b){
 
 }
 
-int evaluate(Board b, int alpha, int beta) {
+int evaluate(Board b, int alpha, int beta, zstuff zobstuff) {
     string fen = b.getFEN();
     Color turn = b.getMoveColor();
 
@@ -94,16 +95,16 @@ int evaluate(Board b, int alpha, int beta) {
 
     if (turn == WHITE){
 
-        return findmaterial(fen)*1000+rand()%10;
+        return zobstuff.eval;
     }
     else {
-        return -findmaterial(fen)*1000-rand()%10;
+        return -zobstuff.eval;
     }
 }
 
 int alphaBeta(Board b,int alpha, int beta, int depthleft, vector<long long int> movestack,array<array<array<long long int,12>,8>,9> zarray,zstuff zobriststuff) {
     //cout<<"alphabeta: d:"<<depthleft<<" move: "<<b.getMoveColor()<<endl;
-    if( depthleft == 0 ) return evaluate(b, alpha, beta );
+    if( depthleft == 0 ) return evaluate(b, alpha, beta, zobriststuff);
     vector<pair<Notation, Notation>> allmoves = b.returnNotationMoves();
 
    for (int i = 0; i < allmoves.size(); i++)  {
@@ -114,12 +115,13 @@ int alphaBeta(Board b,int alpha, int beta, int depthleft, vector<long long int> 
         //b2.makeMove(n1,n2);
 
         //logs
-        string newdir = getcwd(NULL,0);
-        stringstream buffer;
-        buffer<<n1<<'-'<<n2<<"_"<<b2.getLastPGNmove();
-        string oldname = buffer.str();
-        mkdir(oldname.c_str());
-        chdir(oldname.c_str());
+        // string newdir = getcwd(NULL,0);
+        // stringstream buffer;
+        // buffer<<n1<<'-'<<n2<<"_"<<b2.getLastPGNmove();
+        // string oldname = buffer.str();
+        // mkdir(oldname.c_str());
+        // chdir(oldname.c_str());
+
         // ofstream info;
         // info.open("info.txt");
         // info<<"FEN:"<<b2.getFEN()<<endl<<"zval:"<<zobriststuff.zval<<endl<<"materialadv:"<<zobriststuff.materialadv<<endl;
@@ -133,9 +135,9 @@ int alphaBeta(Board b,int alpha, int beta, int depthleft, vector<long long int> 
             movestack.pop_back();
 
             //logging
-            chdir(newdir.c_str());
-            string newname = buffer.str()+"__"+to_string(score)+" BETA cut";
-            rename(oldname.c_str(),newname.c_str());
+            // chdir(newdir.c_str());
+            // string newname = buffer.str()+"__"+to_string(score)+" BETA cut";
+            // rename(oldname.c_str(),newname.c_str());
 
             if( score >= beta )
                 return beta;   //  fail hard beta-cutoff
@@ -157,11 +159,11 @@ pair<Notation, Notation> rootsearch(Board b,vector<long long int> movestack,arra
     }
 
     //LOGS
-    string olddir = getcwd(NULL,0);
-    string newdir = to_string(b.getFullTurnNum())+"-"+to_string(b.getMoveColor());
-    mkdir(newdir.c_str());
-    chdir(newdir.c_str());
-    newdir = getcwd(NULL,0);
+    // string olddir = getcwd(NULL,0);
+    // string newdir = to_string(b.getFullTurnNum())+"-"+to_string(b.getMoveColor());
+    // mkdir(newdir.c_str());
+    // chdir(newdir.c_str());
+    // newdir = getcwd(NULL,0);
 
     int alpha = -999999999;
     int beta = 999999999;
@@ -176,16 +178,15 @@ pair<Notation, Notation> rootsearch(Board b,vector<long long int> movestack,arra
         //b2.makeMove(n1,n2);
 
         //logs
-        stringstream buffer;
-        buffer<<n1<<'-'<<n2<<"_"<<b2.getLastPGNmove();
-        string oldname = buffer.str();
-        mkdir(oldname.c_str());
-        chdir(oldname.c_str());
-        ofstream info;
-        info.open("info.txt");
-        info<<"FEN:"<<b2.getFEN()<<endl<<"zval:"<<zobriststuff.zval<<endl<<"materialadv:"<<zobriststuff.materialadv<<endl;
-        //for (int j= 0; j<b.returnNotationMoves().size();j++) {info<<b.returnNotationMoves()[i].first,info<<b.returnNotationMoves()[i].second<<endl;}
-        info.close();
+        // stringstream buffer;
+        // buffer<<n1<<'-'<<n2<<"_"<<b2.getLastPGNmove();
+        // string oldname = buffer.str();
+        // mkdir(oldname.c_str());
+        // chdir(oldname.c_str());
+        // ofstream info;
+        // info.open("info.txt");
+        // info<<"FEN:"<<b2.getFEN()<<endl<<"zval:"<<zobriststuff.zval<<endl<<"materialadv:"<<zobriststuff.materialadv<<endl;
+        // info.close();
         
         
         
@@ -193,7 +194,7 @@ pair<Notation, Notation> rootsearch(Board b,vector<long long int> movestack,arra
             //make move
             movestack.push_back(zobriststuff.zval);
             
-            int score = -alphaBeta(b2,-beta,-alpha,2,movestack,zarray,zobriststuff);
+            int score = -alphaBeta(b2,-beta,-alpha,1,movestack,zarray,zobriststuff);
             if (score>alpha) {
                 alpha = score;
                 bestmove = make_pair(n1,n2); //
@@ -201,18 +202,18 @@ pair<Notation, Notation> rootsearch(Board b,vector<long long int> movestack,arra
             movestack.pop_back();
 
             //logging
-            chdir(newdir.c_str());
-            string newname = buffer.str()+"__"+to_string(score);
-            rename(oldname.c_str(),newname.c_str());
+            // chdir(newdir.c_str());
+            // string newname = buffer.str()+"__"+to_string(score);
+            // rename(oldname.c_str(),newname.c_str());
         }
         else{
-            chdir(newdir.c_str());
+            //chdir(newdir.c_str());
         }
 
         
     }
     //zstuff zobriststuff = zmove(bbestmove.first,bestmove.second,ogzobriststuff,zarray);
-    chdir(olddir.c_str());
+    //chdir(olddir.c_str());
     return bestmove;
 }
 
@@ -229,10 +230,10 @@ int playgame(){
     movestack.push_back(zobriststuff.zval);
 
     //LOG STUFF
-    cout<<remove("logs");
-    mkdir("logs");
-    chdir("logs");
-    string olddir = getcwd(NULL,0);
+    // cout<<remove("logs");
+    // mkdir("logs");
+    // chdir("logs");
+    // string olddir = getcwd(NULL,0);
     //LOG STUFF
 
     while (gn){

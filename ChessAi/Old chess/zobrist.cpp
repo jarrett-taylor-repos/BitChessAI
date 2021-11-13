@@ -1,7 +1,9 @@
 #include <random>
 #include "zstuff.cpp"
 #include "Zobristclass.cpp"
+#include "piecesquaretable.h"
 using namespace std;
+//vector<vector<int>> psts;
 
 
 long long int largerandom(){
@@ -66,6 +68,7 @@ int Square2Int(Square* sqr){
 zstuff board2zvals(Board b,array<array<array<long long int,12>,8>,9> zarray){
     long long int zval = 0;
     int materialadv = 0;
+    int pst = 0;
     array<int,12> materialevals = {1,3,3,5,9,36,-1,-3,-3,-5,-9,-36};
     
     for (int i=0; i<8; i++){
@@ -73,9 +76,13 @@ zstuff board2zvals(Board b,array<array<array<long long int,12>,8>,9> zarray){
             Square* sqr = b.getSquare(i,j);
 
             if (sqr->getPiece()!=EMPTY) {
+
                 int iter = Square2Int(sqr);
                 zval = zval^zarray[i][j][iter];
                 materialadv += materialevals[iter];
+
+                pst += psts[iter][i+j*8];
+                
             }
 
         }
@@ -87,19 +94,21 @@ zstuff board2zvals(Board b,array<array<array<long long int,12>,8>,9> zarray){
 
     //TODO: Cating rights and shit
 
-    return zstuff(zval,materialadv);
+    return zstuff(zval,materialadv,pst);
 }
 
 
 zstuff zmove(Board &b,Notation first,Notation second,zstuff zobriststuff,array<array<array<long long int,12>,8>,9> zarray){
     int materialadv = zobriststuff.materialadv;
     long long int zval = zobriststuff.zval;
+    int pst = zobriststuff.pst;
     array<int,12> materialevals = {1,3,3,5,9,36,-1,-3,-3,-5,-9,-36};
     
     Square* sqr = b.getSquare(first);
     
     int firstpiece = Square2Int(sqr);
     zval=zval^zarray[sqr->getx()][sqr->gety()][firstpiece]; //removing old piece
+    pst -= psts[firstpiece][sqr->getx()+sqr->gety()*8];
 
     //is there a piece at new loc
     sqr = b.getSquare(second);
@@ -108,6 +117,8 @@ zstuff zmove(Board &b,Notation first,Notation second,zstuff zobriststuff,array<a
     if (secondpiece != -1){ //capture
         zval = zval^zarray[sqr->getx()][sqr->gety()][secondpiece];
         materialadv -= materialevals[secondpiece];
+        pst -= psts[secondpiece][sqr->getx()+sqr->gety()*8];
+
     }
     
     
@@ -119,10 +130,12 @@ zstuff zmove(Board &b,Notation first,Notation second,zstuff zobriststuff,array<a
         if (b.getMoveColor()==WHITE){
             materialadv -= 1;
             zval = zval^zarray[sqr->getx()][6][0];
+            pst -= psts[0][sqr->getx()+6*8];
         }
         else {
             materialadv+=1;
             zval = zval^zarray[sqr->getx()][3][6];
+            pst -= psts[6][sqr->getx()+3*8];
         }
     }
 
@@ -130,16 +143,20 @@ zstuff zmove(Board &b,Notation first,Notation second,zstuff zobriststuff,array<a
         if (secondpiece<6){ //white
             materialadv+=materialevals[secondpiece]-1;
             zval = zval^zarray[sqr->getx()][sqr->gety()][secondpiece];
+            pst += psts[secondpiece][sqr->getx()+sqr->gety()*8];
         }
         else{
             materialadv-=materialevals[secondpiece]+1;
             zval = zval^zarray[sqr->getx()][sqr->gety()][secondpiece];
+            pst += psts[secondpiece][sqr->getx()+sqr->gety()*8];
         }
     }
     else{
         zval = zval^zarray[sqr->getx()][sqr->gety()][secondpiece];
+        pst += psts[secondpiece][sqr->getx()+sqr->gety()*8];
     }
 
+    //I don't have piece square tables here because i don't have a rook piece square table.  If you change that, you must update this. TODO
     if (b.getWasCastle()) {
         if (second == g1){
             zval = zval^zarray[7][7][3]^zarray[5][7][3];
@@ -157,7 +174,7 @@ zstuff zmove(Board &b,Notation first,Notation second,zstuff zobriststuff,array<a
 
     zval = zval^zarray[8][0][0];
 
-    return zstuff(zval,materialadv);
+    return zstuff(zval,materialadv,pst);
 
 }
 
