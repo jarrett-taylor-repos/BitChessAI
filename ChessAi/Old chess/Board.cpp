@@ -706,9 +706,15 @@ bool Board::makeMove(Notation start, Notation end) {
             allPieces.push_back(getSquare(end));
             sqstart->setEmpty();
             removeSquareFromVector(getSquare(start));
-            Square* takenpawn = getSquare(sqend->getx(), sqstart->gety());
-            takenpawn->setEmpty();
-            removeSquareFromVector(takenpawn);
+            if(moveColor == WHITE) {
+                Square* takenpawn = getSquare(sqend->getx(), sqstart->gety()+1);
+                takenpawn->setEmpty();
+                removeSquareFromVector(takenpawn);
+            } else {
+                Square* takenpawn = getSquare(sqend->getx(), sqstart->gety()-1);
+                takenpawn->setEmpty();
+                removeSquareFromVector(takenpawn);
+            }
         } else if(promotion) {
             pawnmove=true;
             if(sqend->getPiece() != EMPTY) {
