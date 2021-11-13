@@ -186,11 +186,18 @@ int main() {
     // amb.makeMoveAndPrint(h2, g2);
     // cout << amb.getLastPGNmove() << endl;
 
-    string makeh7h5_segfault = "";
-    Board seg(makeh7h5_segfault);
-    seg.makeMoveAndPrint(h7, h5);
+    // string makeh7h5_segfault = "";
+    // Board seg(makeh7h5_segfault);
+    // seg.makeMoveAndPrint(h7, h5);
 
-    string doublechecktest = "1q3Nnr/r2kp1p1/6Q1/np1P1B1p/5P2/1P4P1/3P3P/1RB1K1NR b K - 0 23";
-    testBoardPos(doublechecktest);
+    // string doublechecktest = "1q3Nnr/r2kp1p1/6Q1/np1P1B1p/5P2/1P4P1/3P3P/1RB1K1NR b K - 0 23";
+    // testBoardPos(doublechecktest);
+
+
+    string makea7a6 = "rnbqkbnr/pp3ppp/4p3/8/3p4/5N2/PPPN1PPP/R1BQKB1R b KQkq - 3 7";
+    testBoardPos(makea7a6);
+    Board b(makea7a6);
+    b.makeMoveAndPrint(a7, a6);
+
     return 0;
 }

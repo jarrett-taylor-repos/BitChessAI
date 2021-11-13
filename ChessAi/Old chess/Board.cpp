@@ -588,7 +588,7 @@ bool Board::makeMove(Notation start, Notation end) {
     Square* sqstart = getSquare(start);
     Square* sqend = getSquare(end);
     Piece startp = sqstart->getPiece();
-    Piece endp = sqstart->getPiece();
+    Piece endp = sqend->getPiece();
     
     bool rightColor = sqstart->getColor() == moveColor;
     bool gameOver = isGameOver();

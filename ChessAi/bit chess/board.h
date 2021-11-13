@@ -23,6 +23,7 @@ class Board {
         
         vector<Move> moves;
         std::multimap<int, Attacker> attackers;
+        vector<int> attackedSquares;
 
         int whiteKingSqaure;
         int blackKingSqaure;

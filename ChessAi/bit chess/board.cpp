@@ -391,10 +391,12 @@ void Board::addSquare(int sqaureIdx, char piece) {
 }
 
 void Board::addAttacker(Attacker a, int startSq) {
+    attackedSquares.push_back(a.getTargetSq());
     attackers.insert(make_pair(startSq, a));
 }
 void Board::clearAttackers() {
     attackers.clear();
+    attackedSquares.clear();
 }
 multimap<int, Attacker> Board::getAttackers() {
     return attackers;
