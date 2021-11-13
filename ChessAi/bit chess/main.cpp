@@ -1,21 +1,19 @@
 #include "board.cpp"
 
-extern int numSqauresToEdge[64][8];
-extern int knightMoves[64][8];
-extern int blackPawnMoves[64][4];
-extern int whitePawnMoves[64][4];
-extern int kingMoves[64][8];
-extern multimap<int, precomputedAttackerData> attackersOnWhite;
-extern multimap<int, precomputedAttackerData> attackersOnBlack;
-extern map<int, string> intToStringMap;
-extern map<string, int> stringToIntMap;
-
 int main() {
     init();
     Board b;
-    b.print();
-    multimap<int, precomputedAttackerData>::iterator itr;
-    for(itr = attackersOnWhite.begin(); itr != attackersOnWhite.end(); ++itr) {
-        cout << itr->first << ", " << itr->second;
+    string test2 = "4k3/4r3/8/8/8/4K3/7R/8 w - - 0 1";
+    b.loadFen(test2);
+    b.printAttackers();
+    multimap<int,Attacker> atts = b.getAttackers();
+    vector<pair<int, int>> checks = b.getChecks();
+    char* boardSquares = b.getSquares();
+    for(int i = 0; i < checks.size(); i++) {
+        int start = checks[i].first;
+        int end = checks[i].second;
+        char startP = boardSquares[start];
+        char endP = boardSquares[end];
+        cout << b.pieceToString(startP) << " - " << start << " checks " <<  b.pieceToString(endP) << " - " << end << endl;
     }
 }
