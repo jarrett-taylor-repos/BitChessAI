@@ -13,7 +13,7 @@ int moveGenerationTest(Board b, int depth, ofstream& myfile) {
         pair<Notation, Notation> tempmove = notmoves[i];
         Board temp = b;
         bool mademove = temp.makeMove(tempmove.first, tempmove.second);
-        myfile << temp.getFEN() << " NUMMOVES: " << temp.returnNotationMoves().size() << endl;
+        //myfile << temp.getFEN() << " NUMMOVES: " << temp.returnNotationMoves().size() << endl;
         if(mademove) {
             numPos += moveGenerationTest(temp, depth-1, myfile);
         } else {

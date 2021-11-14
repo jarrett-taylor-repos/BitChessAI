@@ -17,7 +17,7 @@ class Board {
         bool wKQ_bkq[4]; //0 means cant castle
         
 
-        unordered_map<string, int> fenMap;
+        map<string, int> fenMap;
 
         vector<pair<Square*, Square*>> vectorGetAllLegalMoves; 
         vector<pair<Notation, Notation>> vectorGetNotationMoves;
@@ -38,7 +38,7 @@ class Board {
         Color getMoveColor();
         vector<pair<Notation, Notation>> getAllMovesVector();
         vector<pair<Notation, Notation>> returnNotationMoves();
-        unordered_map<string, int> getfenMap();
+        map<string, int> getfenMap();
         void setfenMap(); 
         int getFenRepeat();
         bool getWasCapture();
@@ -272,12 +272,11 @@ Board::Board(const Board &b) {
         wKQ_bkq[i] = b.wKQ_bkq[i];
     }
     //wKQ_bkq[4] = b.wKQ_bkq[4];
-    fenMap = b.fenMap;
     vectorGetAllLegalMoves = b.vectorGetAllLegalMoves;
     vectorGetNotationMoves = b.vectorGetNotationMoves;
     allPGN = b.allPGN;
     allPieces = b.allPieces;
-
+    fenMap = b.fenMap;
 }
 
 vector<Square*> Board::getAllPieces() {
@@ -373,13 +372,13 @@ vector<pair<Notation, Notation>> Board::returnNotationMoves() {
     return vectorGetNotationMoves;
 }
 
-unordered_map<string, int> Board::getfenMap() {
+map<string, int> Board::getfenMap() {
     return fenMap;
 }
 
 void Board::setfenMap() {
     string fen_info = split(getFEN(), " ")[0];
-    unordered_map<string, int>::iterator it = fenMap.find(fen_info);
+    map<string, int>::iterator it = fenMap.find(fen_info);
     if(it != fenMap.end()) {
         it->second++;
     } else { 
@@ -388,7 +387,7 @@ void Board::setfenMap() {
 }
 int Board::getFenRepeat() {
     string findfen = split(getFEN(), " ")[0];
-    unordered_map<string, int>::iterator it = fenMap.find(findfen);
+    map<string, int>::iterator it = fenMap.find(findfen);
     int repeat = 0;
     if(it != fenMap.end()) {
         repeat = it->second;
@@ -545,7 +544,7 @@ bool Board::isDraw() {
 bool Board::repitionDraw() {
 
     string fen_info = split(getFEN(), " ")[0];
-    unordered_map<string, int>::iterator it = fenMap.find(fen_info);
+    map<string, int>::iterator it = fenMap.find(fen_info);
     if(it != fenMap.end()) {
         if(it->second==3) {
             return true;
