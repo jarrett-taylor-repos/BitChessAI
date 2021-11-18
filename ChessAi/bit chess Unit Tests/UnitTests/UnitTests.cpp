@@ -595,7 +595,7 @@ namespace UnitTests
 			}
 		}
 		TEST_METHOD(TestCopyConstructor) {
-
+			
 		}
 		TEST_METHOD(TestEqualOperator) {
 
@@ -636,7 +636,7 @@ namespace UnitTests
 			Assert::IsTrue(isFound);
 		}
 		TEST_METHOD(TestMakeMove) {
-
+			      
 		}
 		TEST_METHOD(TestSetAttackers) {
 			init();
@@ -651,7 +651,11 @@ namespace UnitTests
 			Assert::AreEqual(19, length);
 		}
 		TEST_METHOD(TestGenerateMoves) {
-
+			init();
+			Board b;
+			vector<UciMove> ucimoves = b.getUciMoves();
+			int size = ucimoves.size();
+			Assert::AreEqual(20, size);
 		}
 		TEST_METHOD(TestIsPiecePinned) {
 			Board b;
@@ -798,6 +802,36 @@ namespace UnitTests
 					Assert::AreEqual(test, ints[i]);
 				}
 			}
+		}
+		TEST_METHOD(TestCharToStringMap) {
+			init();
+			Board b;
+			vector<char> pieces = {
+				None(),
+				WhitePawn(), WhiteKnight(), WhiteBishop(), WhiteRook(), WhiteQueen(), WhiteKing(),
+				BlackPawn(), BlackKnight(), BlackBishop(), BlackRook(), BlackQueen(), BlackKing(),
+				char(-1)
+			};
+			vector<string> value = {
+				".",
+				"P", "N", "B", "R", "Q", "K",
+				"p", "n", "b", "r", "q", "k",
+				"."
+			};
+			for (int i = 0; i < pieces.size(); i++) {
+				char piece = pieces[i];
+				string pieceValue = value[i];
+				string test = b.pieceToString(piece);
+				Assert::AreEqual(test, pieceValue);
+			}
+		}
+		TEST_METHOD(TestSetFen) {
+			init();
+			Board b;
+			b.setFen();
+			string fen = b.getFen();
+			string correctfen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+			Assert::AreEqual(fen, correctfen);
 		}
 	};
 }

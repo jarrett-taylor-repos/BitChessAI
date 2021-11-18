@@ -14,7 +14,6 @@ class Attacker {
         int getStartSq();
         int getTargetSq();
         char getPiece();
-        Attacker operator()(int, int, char);
 };
 
 #endif

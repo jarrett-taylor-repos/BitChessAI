@@ -585,7 +585,11 @@ bool Board::makeMove(Notation start, Notation end) {
     //if can make move return true and make move
     bool move_made = false;
     Square* sqstart = getSquare(start);
+    int startx = sqstart->getx();
+    int starty = sqstart->gety();
     Square* sqend = getSquare(end);
+    int endx = sqend->getx();
+    int endy = sqend->gety();
     Piece startp = sqstart->getPiece();
     Piece endp = sqend->getPiece();
     
@@ -599,21 +603,26 @@ bool Board::makeMove(Notation start, Notation end) {
     for(int i = 0; i < vectorGetAllLegalMoves.size(); i++) {
         Square* teststart = vectorGetAllLegalMoves[i].first;
         Square* testend = vectorGetAllLegalMoves[i].second;
-        bool testxstart = teststart->getx() == sqstart->getx();
-        bool testystart = teststart->gety() == sqstart->gety();
-        bool testxend = testend->getx() == sqend->getx();
-        bool testyend = testend->gety() == sqend->gety();
+        int teststartx = teststart->getx();
+        int teststarty = teststart->gety();
+        int testendx = testend->getx();
+        int testendy = testend->gety();
+        bool testxstart = teststartx == startx;
+        bool testystart = teststarty == starty;
+        bool testxend = testendx == endx;
+        bool testyend = testendy == endy;
         if(testxstart && testystart && testxend && testyend) {
             legalmove = true;
         }
-        bool test2PiecesRow = teststart->getPiece() == sqstart->getPiece() //same piece
+        bool test2PiecesRow = teststart->getPiece() == startp //same piece
             && testxend && testyend //test same end sqaure
             && testystart && !testxstart; //test if in same row but diffent column
-        bool test2PiecesColumn = teststart->getPiece() == sqstart->getPiece() //same piece
+        bool test2PiecesColumn = teststart->getPiece() == startp //same piece
             && testxend && testyend //test same end sqaure
             && testxstart && !testystart; //test if in same column but diffent row
-        bool sameEndSquare = teststart->getPiece() == sqstart->getPiece() && testxend && testyend &&
-            !testxstart && !testystart;//test if 2 different knights can move to same square and not same piece
+        bool sameEndSquare = teststart->getPiece() == startp 
+            && testxend && testyend
+            && !testxstart && !testystart;//test if 2 different knights can move to same square and not same piece
 
         if(test2PiecesRow) {
             ambiguity_rowcol_sameEndSquare[0] = true;
@@ -630,7 +639,6 @@ bool Board::makeMove(Notation start, Notation end) {
     if(rightColor && !gameOver && legalmove) {
         bool pawnmove=false;
         bool capture=false;
-        bool updateEnpassantTarget=false;
         //test if castling
         bool castleMove = sqstart->getPiece() == KING &&
             abs(sqstart->getx() - sqend->getx()) == 2;
@@ -2146,10 +2154,10 @@ string Board::moveToChess(Notation start, Notation end, bool capture, bool promo
     }
 
     string ambiguity = "";
-    if(rowcol[2] && !rowcol[1] && startp != PAWN) {
+    if((rowcol[2] || rowcol[0]) && !rowcol[1] && startp != PAWN) {
         string temp = notationToString(start);
         ambiguity = temp[0];
-    } else if (rowcol[2] && rowcol[1] && startp != PAWN) {
+    } else if ((rowcol[2] || rowcol[0]) && rowcol[1] && startp != PAWN) {
         string temp = notationToString(start);
         ambiguity = temp[1];
     } else{

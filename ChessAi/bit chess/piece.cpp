@@ -210,7 +210,6 @@ void precomputtedStringToInt() {
 
 void init() {//load on start of program
     precomputtedMoveData();
-    //precomputtedPossibleAttackers();
     precomputtedIntToString();
     precomputtedStringToInt();
     cout << "INIT complete" << endl;
