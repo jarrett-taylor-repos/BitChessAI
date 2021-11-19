@@ -620,19 +620,19 @@ namespace UnitTests
 		}
 		TEST_METHOD(TestClearSquare) {
 			Board b;
-			map<int, char> mapPieces = b.getAllPieces();
+			vector<pair<int, char>> mapPieces = b.getAllPieces();
 			b.clearSquare(0);
-			map<int, char> mapPieces2 = b.getAllPieces();
-			map<int, char>::iterator it;
-			bool isFound = mapPieces2.find(0) != mapPieces2.end();
+			vector<pair<int, char>> mapPieces2 = b.getAllPieces();
+			pair<int, char> item = make_pair(0, WhiteRook());
+			bool isFound = find(mapPieces2.begin(), mapPieces2.end(), item) != mapPieces2.end();
 			Assert::IsFalse(isFound);
 		}
 		TEST_METHOD(TestAddSquare) {
 			Board b;
 			b.addSquare(30, king);
-			map<int, char> mapPieces2 = b.getAllPieces();
-			map<int, char>::iterator it;
-			bool isFound = mapPieces2.find(30) != mapPieces2.end();
+			vector<pair<int, char>> mapPieces2 = b.getAllPieces();
+			pair<int, char> item = make_pair(0, WhiteRook());
+			bool isFound = find(mapPieces2.begin(), mapPieces2.end(), item) != mapPieces2.end();
 			Assert::IsTrue(isFound);
 		}
 		TEST_METHOD(TestMakeMove) {
@@ -701,6 +701,7 @@ namespace UnitTests
 			Assert::AreEqual(2, size);
 		}
 		TEST_METHOD(TestNoPiecesBetween) {
+			init();
 			Board b;
 			string nobetween = "rnbqk1nr/pppp1ppp/8/4p3/1b2P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2 3";
 			//attacker is black bishop is square 25
@@ -712,9 +713,10 @@ namespace UnitTests
 			int numSqAway = 2;
 			bool none = b.noPiecesBetween(attackSq, pinSq, numSqAway); //true?
 			Assert::IsTrue(none);
+			Board b2;
 			string between = "rnbqk1nr/pppp1ppp/8/4p3/1b2P3/2P2N2/PP1P1PPP/RNBQKB1R b KQkq - 0 3";
-			b.loadFen(between);
-			bool pawnBetween = b.noPiecesBetween(attackSq, pinSq, numSqAway); //false;
+			b2.loadFen(between);
+			bool pawnBetween = b2.noPiecesBetween(attackSq, pinSq, numSqAway); //false;
 			Assert::IsFalse(pawnBetween);
 		}
 		TEST_METHOD(TestSetMoveColor) {

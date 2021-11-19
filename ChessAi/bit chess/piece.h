@@ -11,8 +11,7 @@ using std::string;
 
 extern int numSqauresToEdge[64][8];
 extern int knightMoves[64][8];
-extern int blackPawnMoves[64][4];
-extern int whitePawnMoves[64][4];
+extern int pawnMoves[64][8];
 extern int kingMoves[64][8];
 extern int blackAttackingPawnMoves[64][2];
 extern int whiteAttackingPawnMoves[64][2];

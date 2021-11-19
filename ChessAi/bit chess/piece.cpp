@@ -7,15 +7,13 @@ using namespace std;
 
 int directionOffSets[8] = {8, -8, -1, 1, 7, -7, 9, -9};
 int knightOffsets[8] = {6, 15, 17, 10, -6, -15, -17, -10}; //start at 2 left and up 1 then clockwise
-int whitePawnOffsets[4] = {8, 16, 7, 9};
-int blackPawnOffsets[4] = {-8, -16, -9, -7};
+int pawnOffsets[8] = {8, 16, 7, 9, -8, -16, -9, -7};
 int whitePawnAttckingOffsets[2] = {7, 9}; //left, right
 int blackPawnAttckingOffsets[2] = {-9, -7}; //left, right
 
 int numSqauresToEdge[64][8];
 int knightMoves[64][8];
-int blackPawnMoves[64][4];
-int whitePawnMoves[64][4];
+int pawnMoves[64][8];
 int blackAttackingPawnMoves[64][2];
 int whiteAttackingPawnMoves[64][2];
 int kingMoves[64][8];
@@ -124,33 +122,25 @@ void precomputtedMoveData() {
                 kingMoves[sqIndex][i] = sqIndex + (directionOffSets[i]*possibleKing[i]);
             }
 
-            //white pawns
-            bool possibleWhitePawn[4] = {
+            //pawns
+            bool possiblePawn[8] = {
                 (numNorth >= 1),
                 (numNorth >= 2) && (sqIndex < 16) && (sqIndex > 7),
                 (numNorth >= 1) && (numWest >= 1),
-                (numNorth >= 1) && (numEast >= 1)
+                (numNorth >= 1) && (numEast >= 1),
+                (numSouth >= 1),
+                (numSouth >= 2) && (sqIndex < 56) && (sqIndex > 47),
+                (numSouth >= 1) && (numWest >= 1),
+                (numSouth >= 1) && (numEast >= 1)
             };
-            for(int i=0; i < 4; i++) {
-                int addValue = (whitePawnOffsets[i]*possibleWhitePawn[i]);
-                whitePawnMoves[sqIndex][i] = sqIndex + addValue;
-                if (i > 1) {
-                    whiteAttackingPawnMoves[sqIndex][i-2] = sqIndex + addValue;
+            for(int i=0; i < 8; i++) {
+                int addValue = (pawnOffsets[i] * possiblePawn[i]);
+                pawnMoves[sqIndex][i] = sqIndex + addValue;
+                if (i > 1 && i < 4) {//2 and 3 
+                    whiteAttackingPawnMoves[sqIndex][i - 2] = sqIndex + addValue;
                 }
-            }
-
-            //black pawns
-            bool possibleBlackPawn[4] = {
-               (numSouth >= 1),
-               (numSouth >= 2) && (sqIndex < 56) && (sqIndex > 47),
-               (numSouth >= 1) && (numWest >= 1),
-               (numSouth >= 1) && (numEast >= 1)
-            };
-            for(int i=0; i < 4; i++) {
-                int addValue = (blackPawnOffsets[i]*possibleBlackPawn[i]);
-                blackPawnMoves[sqIndex][i] = sqIndex + addValue;
-                if (i > 1) {
-                    blackAttackingPawnMoves[sqIndex][i-2] = sqIndex + addValue;
+                if (i > 5 && i < 8) { //6 and 7
+                    blackAttackingPawnMoves[sqIndex][i - 6] = sqIndex + addValue;
                 }
             }
         }

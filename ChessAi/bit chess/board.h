@@ -30,7 +30,7 @@ class Board {
 
         int whiteKingSqaure;
         int blackKingSqaure;
-        map<int,char> allPieces;
+        vector<pair<int,char>> allPieces;
         map<string, int> fenMap;
 
         bool wasCapture;
@@ -89,7 +89,7 @@ class Board {
         int stringToIntSquare(string);
 
         char* getSquares();
-        map<int, char> getAllPieces();
+        vector<pair<int, char>> getAllPieces();
         void clearAllPieces();
         void clearMoves();
         void setInit();

@@ -6,9 +6,11 @@
 
 
 void Board::setAttackers() {
-    for(int pieceIndex = 0; pieceIndex < allPieces.size(); pieceIndex++) {
-        int piece = allPieces[pieceIndex];
-        if(!isColor(piece, moveColor) && !isNone(piece)) {
+    for (int i = 0; i < allPieces.size(); i++) {
+        pair<int, char> currPair = allPieces[i];
+        int pieceIndex = currPair.first;
+        char piece = currPair.second;
+        if (!isColor(piece, moveColor) && !isNone(piece)) {
             if (isSlidingPiece(piece)) {
                 slidingAttackers(pieceIndex, piece);
             }
@@ -94,8 +96,7 @@ vector<UciMove> Board::getUciMoves() {
 }
 
 void Board::generateMoves() {
-    moves.clear();
-    ucimoves.clear();
+    clearMoves();
     setAttackers();
     vector<int> removeMoveIndex;
     vector<pair<int, int>> checks = getChecks();
@@ -108,9 +109,10 @@ void Board::generateMoves() {
         char checkingPiece = squares[checkStartSq];
         int checkTargetSq = checks[0].second;
         for (int i = 0; i < allPieces.size(); i++) {
-            int pieceIndex = allPieces[i];
-            const char piece = squares[pieceIndex];
-            if (!isNone(piece)) {//piece is pinned moves
+            pair<int, char> currPair = allPieces[i];
+            int pieceIndex = currPair.first;
+            char piece = currPair.second;
+            if (!isNone(piece) && isColor(moveColor, piece)) {//piece is pinned moves
                 int pinningPieceIdx = getPinningPieceIndex(pieceIndex);
                 generateMoveHelper(pieceIndex, piece, pinningPieceIdx);
             }
@@ -146,9 +148,10 @@ void Board::generateMoves() {
     } else {
         //return all moves after checking pinned pieces
         for (int i = 0; i < allPieces.size(); i++) {
-            int pieceIndex = allPieces[i];
-            const char piece = squares[pieceIndex];
-            if (!isNone(piece)) {//piece is pinned moves
+            pair<int, char> currPair = allPieces[i];
+            int pieceIndex = currPair.first;
+            char piece = currPair.second;
+            if (!isNone(piece) && isColor(moveColor, piece)) {//piece is pinned moves
                 int pinningPieceIdx = getPinningPieceIndex(pieceIndex);
                 generateMoveHelper(pieceIndex, piece, pinningPieceIdx);
             }
@@ -190,7 +193,7 @@ void Board::generateMoveHelper(int startSq, const char piece, int pinningPieceId
         generateKingMoves(startSq);
     }
     else if (isKnight(piece) && !isPin) {//if pinned, unable to move
-        generateKingMoves(startSq);
+        generateKnightMoves(startSq);
     }
     else if (isPawn(piece)) {
         generatePawnMoves(startSq, pinningPieceIdx);
@@ -240,11 +243,12 @@ void Board::generateKingMoves(int startSq) { //need to add castling
     int size = sizeof(kingMoves[startSq])/sizeof(int);
     const char piece = squares[startSq];
     for(int i = 0; i < size; i++) {
-        int targetSquare = kingMoves[startSq][i];
+        int targetSquare = knightMoves[startSq][i];
         const char targetPiece = squares[targetSquare];
-        bool isAttacked = find(attackedSquares.begin(), attackedSquares.end(), targetSquare) != attackedSquares.end();
+        bool validMove = startSq != targetSquare;
+        bool isAttacked = !isSquareAttacked(targetSquare);
         bool emptyorOppositeColorSquare = isNone(targetPiece) || !isColor(piece, targetPiece);
-        if(!isAttacked && emptyorOppositeColorSquare) {//if is not check and target square does not hold piece of same color
+        if(!isAttacked && emptyorOppositeColorSquare && validMove) {//if is not check and target square does not hold piece of same color
             Move m(startSq, targetSquare);
             moves.push_back(m);
             UciMove ucim = moveToUci(m, "");
@@ -256,7 +260,8 @@ void Board::generateKingMoves(int startSq) { //need to add castling
         const int whiteKing = 4;
         if (castlingRights.find('K') != std::string::npos) {
             const char sq5 = squares[5];
-            const char sq6 = squares[6];            bool canCastleShort = 
+            const char sq6 = squares[6];
+            bool canCastleShort = 
                 isNone(sq5) && isNone(sq6) &&
                 !isSquareAttacked(whiteKing) && !isSquareAttacked(5) && !isSquareAttacked(6);
             if (canCastleShort) {
@@ -320,24 +325,10 @@ void Board::generatePawnMoves(int startSq, int pinningPieceIdx) {
     int kingIndex = getKing(moveColor);
     int diffOffsetKingToAtt = getDifferenceOffset(kingIndex, pinningPieceIdx);
     bool isPin = pinningPieceIdx != -1;
-    int pawnMoves[64][4];
-    if (isWhite(moveColor)) {
-        for (int i = 0; i < 64; i++) {
-            for (int j = 0; j < 4; j++) {
-                pawnMoves[i][j] = whitePawnMoves[i][j];
-            }
-        }
-    }
-    else {
-        for (int i = 0; i < 64; i++) {
-            for (int j = 0; j < 4; j++) {
-                pawnMoves[i][j] = blackPawnMoves[i][j];
-            }
-        }
-    }
-
-    int size = sizeof(pawnMoves[startSq]) / sizeof(int);
-    for (int i = 0; i < size; i++) {
+    
+    int startLoopIndex = isWhite(moveColor) ? 0 : 4;
+    int endLoopIndex = isWhite(moveColor) ? 4 : 8;
+    for (int i = startLoopIndex; i < endLoopIndex; i++) {
         int targetSquare = pawnMoves[startSq][i];
         const char targetSqPiece = squares[targetSquare];
         int diffOffsetTargetToAtt = getDifferenceOffset(targetSquare, pinningPieceIdx);
@@ -345,29 +336,27 @@ void Board::generatePawnMoves(int startSq, int pinningPieceIdx) {
         bool legalPinnedMove = (diffOffsetTargetToAtt == diffOffsetKingToAtt) && (diffOffsetTargetToAtt == diffOffsetKingToTarget);
         bool canMoveWithPin = !isPin ? true : legalPinnedMove;
         bool pieceMoves = (targetSquare != startSq);
+        int boolIndex = i - startLoopIndex;
         if (canMoveWithPin && pieceMoves) {
-            if (i == 0) {
-                pawnMovesBool[i] = isNone(targetSqPiece);
+            if (i == startLoopIndex) {
+                pawnMovesBool[boolIndex] = isNone(targetSqPiece);
             }
-            else if (i == 1) {
-                bool noPieceBetweenPawnStartAndTarget = noPiecesBetween(startSq, targetSquare, 2);
-                pawnMovesBool[i] = isNone(targetSqPiece) && noPieceBetweenPawnStartAndTarget;
+            else if (i == startLoopIndex + 1) {
+                int offsetPieceBetweenTarget = isWhite(moveColor) ? -8 : 8;
+                char offsetPiece = squares[targetSquare+offsetPieceBetweenTarget];
+                bool noPieceBetweenPawnStartAndTarget = isNone(targetSqPiece) && isNone(offsetPiece);
+                pawnMovesBool[boolIndex] = noPieceBetweenPawnStartAndTarget;
             }
-            else if (i == 2) {
+            else if (i == startLoopIndex + 2 || i == startLoopIndex + 3) {
                 bool canCapture = !isNone(targetSqPiece) && !isColor(targetSqPiece, startSqPiece);
                 int enpassantTargetSq = stringToIntSquare(enPassantTarget);
                 bool enpassant = enpassantTargetSq == targetSquare;
-                pawnMovesBool[i] = (canCapture || enpassantTargetSq);
-            }
-            else if (i == 3) {
-                bool canCapture = !isNone(targetSqPiece) && !isColor(targetSqPiece, startSqPiece);
-                int enpassantTargetSq = stringToIntSquare(enPassantTarget);
-                bool enpassant = enpassantTargetSq == targetSquare;
-                pawnMovesBool[i] = (canCapture || enpassantTargetSq);
+                bool canMakeMove = (canCapture || enpassant);
+                pawnMovesBool[boolIndex] = canMakeMove;
             }
         }
         //now add moves
-        bool addMove = pawnMovesBool[i];
+        bool addMove = pawnMovesBool[boolIndex];
         if (addMove) {
             Move m(startSq, targetSquare);
             moves.push_back(m);
@@ -389,10 +378,10 @@ void Board::generatePawnMoves(int startSq, int pinningPieceIdx) {
 }
 void Board::generateKnightMoves(int startSq) {
     int size = sizeof(knightMoves[startSq])/sizeof(int);
+    const char piece = squares[startSq];
     for(int i = 0; i < size; i++) {
         int targetSquare = knightMoves[startSq][i];
         const char targetSqPiece = squares[targetSquare];
-        const char piece = squares[startSq];
         bool validMove = targetSquare != startSq;
         bool emptyorOppositeColorSquare = isNone(targetSqPiece) || !isColor(piece, targetSqPiece);
         if(validMove && emptyorOppositeColorSquare) {//if is not pinned and moves to square that holds piece of different color
@@ -557,12 +546,9 @@ bool Board::noForcedMateDraw() {
         return true;
     }
     if (allPieces.size() == 3) {
-        auto it = allPieces.begin();
-        char p1 = it->second;
-        std::advance(it, 1);
-        char p2 = it->second;
-        std::advance(it, 1);
-        char p3 = it->second;
+        char p1 = allPieces[0].second;
+        char p2 = allPieces[1].second;
+        char p3 = allPieces[2].second;
         bool isKnightPiece = isKnight(p1) || isKnight(p2) || isKnight(p3);
         bool isBishopPiece = isBishop(p1) || isBishop(p2) || isBishop(p3);
         if (isKnightPiece || isBishopPiece) {
@@ -732,7 +718,7 @@ void Board::loadFen(string f) {
             } else {
                 const char piece = piece_map.find(ch)->second;
                 squares[rank * 8 + file] = piece;
-                allPieces.insert(make_pair(rank * 8 + file, piece));
+                allPieces.push_back(make_pair(rank * 8 + file, piece));
                 if(ch == 'k') {
                     blackKingSqaure = rank * 8 + file;
                 }
@@ -813,16 +799,22 @@ void Board::setfenMap() {
 }
 
 void Board::clearSquare(int squareIdx) {
-    allPieces.erase(squareIdx);
+    for (int i = 0; i < allPieces.size(); i++) {
+        pair<int, char> currPair = allPieces[i];
+        int pieceIndex = currPair.first;
+        if (squareIdx == pieceIndex) {
+            allPieces.erase(allPieces.begin() + i);
+        }
+
+    }
     squares[squareIdx] = none;
 }
 void Board::addSquare(int sqaureIdx, char piece) {
     pair<int, char> addPair = make_pair(sqaureIdx, piece);
-    allPieces.insert(addPair);
+    allPieces.push_back(addPair);
     squares[sqaureIdx] = piece;
 }
 void Board::addAttacker(Attacker a, int startSq) {
-    attackedSquares.push_back(a.getTargetSq());
     attackers.insert(make_pair(startSq, a));
 }
 void Board::clearAttackers() {
@@ -912,7 +904,7 @@ int Board::stringToIntSquare(string notation) {
     return -1;
 }
 
-map<int, char> Board::getAllPieces() {
+vector<pair<int, char>> Board::getAllPieces() {
     return allPieces;
 }
 void Board::clearAllPieces() {
