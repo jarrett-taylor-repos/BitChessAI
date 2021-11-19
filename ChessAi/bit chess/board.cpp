@@ -636,7 +636,7 @@ bool Board::makeMove(UciMove ucim) {
         if (capture) {
             clearSquare(targetSq);
         }
-        addSquare(targetSq, targetSqPiece);
+        addSquare(targetSq, startSqPiece);
         clearSquare(startSq);
     }
 
@@ -918,6 +918,13 @@ void Board::setInit() {
     init();
 }
 void Board::print() {
+    cout << "------------------" << endl;
+    if(isWhite(moveColor)) {
+        cout << "White to move. ";
+    } else {
+        cout << "Black to move. ";
+    }
+    cout << "Move: " << fullTurnNum << endl;
     for (int file = 7; file >= 0; file--) {
         for (int rank = 0; rank < 8; rank++) {
             int value = file * 8 + rank;
@@ -926,6 +933,8 @@ void Board::print() {
         }
         cout << endl;
     }
+    cout << "------------------" << endl << endl;
+    return;
 }
 void Board::printAttackers() {
     vector<int> attackedSquares;
